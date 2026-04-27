@@ -12,9 +12,13 @@ const routeSteps = [
     correctAction: "straight",
     speedHint: "10 km/h",
     address: "Castex 3671, C1425 CABA, Argentina",
+    trigger: {
+      lat: -34.57618,
+      lng: -58.40746,
+    },
     streetView: {
-      lat: -34.57258,
-      lng: -58.41268,
+      lat: -34.57618,
+      lng: -58.40746,
       heading: 28,
       pitch: -2,
       zoom: 1,
@@ -358,9 +362,13 @@ const routeSteps = [
     correctAction: "straight",
     speedHint: "10 km/h",
     address: "Castex 3671, C1425 CABA, Argentina",
+    trigger: {
+      lat: -34.57618,
+      lng: -58.40746,
+    },
     streetView: {
-      lat: -34.57258,
-      lng: -58.41268,
+      lat: -34.57618,
+      lng: -58.40746,
       heading: 210,
       pitch: -2,
       zoom: 1,
