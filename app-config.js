@@ -1,3 +1,3 @@
 window.APP_CONFIG = {
-  googleMapsApiKey: "AIzaSyAHJ-gz9f0rIIUCYSux4XUDxt7cZQR663g",
+  googleMapsApiKey: "AIzaSyBV8khHDcRIz8Z_w_Fy4OUd8yi3vpgnoWc",
 };
