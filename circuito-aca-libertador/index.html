@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Circuito ACA Libertador</title>
+    <meta
+      name="description"
+      content="Demo jugable del recorrido oficial del examen práctico de manejo en ACA Libertador."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="app-closed">
+    <div class="noise"></div>
+    <div class="page-shell">
+      <section class="entry-menu" id="mainMenu" aria-label="Pantalla principal">
+        <iframe
+          id="homeFrame"
+          class="home-frame"
+          src="./home-exact.html"
+          title="Bajá un cambio"
+          loading="eager"
+        ></iframe>
+      </section>
+
+      <div class="app-shell" id="appShell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Practicá el circuito real antes de rendir</p>
+          <h1>Aprobá jugando</h1>
+          <p class="hero-text">
+            Elegí tu comuna, abrí el circuito y salí a recorrerlo antes del examen.
+            Menos humo, más calle. Acá venís a ubicarte, practicar y llegar con
+            ventaja a la prueba real.
+          </p>
+
+          <div class="hero-actions" aria-hidden="true">
+            <button class="primary-button" id="startStudyMode" type="button">
+              Entrar en modo estudio
+            </button>
+            <button class="ghost-button" id="startExamMode" type="button">
+              Simular examen
+            </button>
+          </div>
+        </div>
+
+        <aside class="route-card">
+          <div class="hero-hud">
+            <div class="hero-mini-map" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <i></i>
+            </div>
+            <div class="hero-score">
+              <span>Puntos</span>
+              <strong>002500</strong>
+            </div>
+            <div class="hero-stars" aria-label="Nivel de práctica">
+              <span>★</span><span>★</span><span>★</span>
+            </div>
+          </div>
+          <p class="card-label">Modo arcade urbano</p>
+          <strong id="heroRouteSummary">Elegí circuito, ubicá los giros y practicá antes de ir.</strong>
+          <p id="heroRouteBlurb">
+            Street View grande al frente, mapa al costado y todos los recorridos de CABA
+            listos para probar.
+          </p>
+        </aside>
+      </header>
+
+      <div class="product-switch" aria-label="Tipo de entrenamiento">
+        <button class="product-tab active" id="showPracticeButton" type="button">
+          Practico
+        </button>
+        <button class="product-tab" id="showTheoryButton" type="button">
+          Teorico
+        </button>
+      </div>
+
+      <main class="dashboard" id="practiceDashboard">
+        <div class="section-splash practice-splash">
+          <div>
+            <p class="section-label">Recorrido virtual</p>
+            <h2>Practicá el circuito antes de ir</h2>
+            <p>
+              Elegí tu sede, abrí el mapa y movete con el mouse en Street View. Hacé
+              click sobre la calle en la dirección que quieras seguir.
+            </p>
+          </div>
+          <a class="section-back-link" href="#mainMenu">Volver al menú</a>
+        </div>
+
+        <section class="panel control-panel is-hidden" aria-hidden="true">
+          <div class="panel-heading">
+            <p class="section-label">Selector</p>
+            <h2>Circuitos y sesión</h2>
+          </div>
+
+          <div class="mode-switch">
+            <button class="mode-button active" id="studyModeButton" type="button">
+              Estudio
+            </button>
+            <button class="mode-button" id="examModeButton" type="button">
+              Examen
+            </button>
+          </div>
+
+          <div class="status-grid">
+            <article>
+              <span>Tramo</span>
+              <strong id="segmentName">Castex</strong>
+            </article>
+            <article>
+              <span>Progreso</span>
+              <strong id="progressValue">1 / 9</strong>
+            </article>
+            <article>
+              <span>Puntaje</span>
+              <strong id="scoreValue">100</strong>
+            </article>
+          </div>
+
+          <div class="progress-card">
+            <div class="progress-copy">
+              <span>Avance sobre el circuito</span>
+              <strong id="progressLabel">Salida desde estacionamiento</strong>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <div class="decision-panel">
+            <p class="section-label">Decisión en esquina</p>
+            <h3 id="decisionPrompt">Prepararte para incorporarte por Castex.</h3>
+            <div class="decision-actions">
+              <button class="decision-button" data-action="left" type="button">
+                Doblar a la izquierda
+              </button>
+              <button class="decision-button" data-action="straight" type="button">
+                Seguir derecho
+              </button>
+              <button class="decision-button" data-action="right" type="button">
+                Doblar a la derecha
+              </button>
+            </div>
+            <p class="decision-feedback" id="decisionFeedback">
+              Elegí un movimiento para avanzar.
+            </p>
+          </div>
+
+          <div class="controls-help">
+            <span>Atajos</span>
+            <p>Usa `↑` para avanzar Street View y `←` `→` para orientar el auto o preparar el giro.</p>
+            <p>Mantené `↑` apretado para avanzar seguido. Los checkpoints se completan solos cuando llegas al cruce correcto.</p>
+          </div>
+
+        </section>
+
+        <section class="panel experience-panel">
+          <div class="panel-heading">
+            <p class="section-label">Visor</p>
+            <h2>Simulación de manejo</h2>
+          </div>
+
+          <div class="viewer-status-row">
+            <div class="viewer-badge" id="viewerModeBadge">Modo demo</div>
+            <p id="viewerStatusText">
+              Mové la vista con el mouse y hacé click sobre la calle para avanzar por el recorrido.
+            </p>
+          </div>
+
+          <div class="viewport" id="viewport">
+            <div class="street-view-canvas" id="streetViewCanvas" aria-hidden="true"></div>
+
+            <div class="viewport-overlay">
+              <p class="viewport-kicker" id="viewportKicker">Vista previa del tramo</p>
+              <h3 id="viewportTitle">Salida por Castex</h3>
+              <p class="viewport-mini" id="viewportDescription">
+                Punto ideal para conectar un `StreetViewPanorama` y disparar overlays de aprendizaje.
+              </p>
+            </div>
+
+            <div class="signal-stack" id="signalStack"></div>
+
+            <div class="route-cue" id="routeCue">
+              <div class="route-cue-arrow" id="routeCueArrow">↑</div>
+              <div class="route-cue-copy">
+                <strong id="routeCueTitle">Segui por Castex</strong>
+                <span id="routeCueText">Avanza hasta el proximo cruce con la flecha hacia arriba.</span>
+              </div>
+            </div>
+
+            <div class="turn-badge" id="turnBadge" aria-hidden="true">GIRO CORRECTO</div>
+
+            <div class="viewport-bottom-bar">
+              <div class="car-hud">
+                <span>Velocidad sugerida</span>
+                <strong id="speedHint">10 km/h</strong>
+              </div>
+              <div class="micro-tip" id="microTip">
+                Revisa entorno y preparate para incorporarte.
+              </div>
+            </div>
+
+            <div class="road-stage" id="fallbackStage">
+              <div class="road-horizon"></div>
+              <div class="road-lane road-lane-left"></div>
+              <div class="road-lane road-lane-right"></div>
+            </div>
+          </div>
+
+          <div class="viewer-footer" aria-hidden="true">
+            <button class="ghost-button" id="backStepButton" type="button">
+              Reposicionar atras
+            </button>
+            <div class="drive-controls" aria-label="Controles de manejo">
+              <button class="drive-button" id="turnLeftButton" type="button">← Izquierda</button>
+              <button class="drive-button drive-button-primary" id="driveForwardButton" type="button">↑ Avanzar</button>
+              <button class="drive-button" id="turnRightButton" type="button">Derecha →</button>
+            </div>
+            <button class="primary-button" id="nextStepButton" type="button">
+              Saltar checkpoint
+            </button>
+          </div>
+
+          <details class="calibration-card route-calibration-card" hidden>
+            <summary>
+              <span>Calibracion del recorrido</span>
+              <strong id="calibrationStepLabel">start</strong>
+            </summary>
+            <p>
+              Cuando encuentres el frame exacto de una alerta, dejá la cámara mirando bien la situación y tocá capturar.
+              Se copia solo un bloque con panoId, coordenadas, heading, pitch y zoom.
+            </p>
+            <button class="ghost-button calibration-button" id="captureViewButton" type="button">
+              Capturar frame actual
+            </button>
+            <pre id="captureOutput">Todavia no capturaste ninguna vista.</pre>
+          </details>
+
+          <section class="embedded-contextual-panel">
+            <div class="panel-heading">
+              <p class="section-label">Mensajes contextuales</p>
+              <h2>Manual y situaciones del circuito</h2>
+            </div>
+            <div class="contextual-list" id="contextualList"></div>
+          </section>
+        </section>
+
+        <section class="panel map-panel">
+          <div class="panel-heading">
+            <p class="section-label">Mapa</p>
+            <h2 id="mapPanelTitle">Ruta ACA Libertador</h2>
+          </div>
+
+          <details class="drawer-card circuit-picker">
+            <summary>
+              <span>Elegir recorrido</span>
+              <strong id="circuitPickerSummary">ACA Libertador · Recorrido A</strong>
+            </summary>
+            <div class="circuit-options" id="circuitOptions"></div>
+          </details>
+
+          <div
+            id="routeMapCanvas"
+            role="img"
+            aria-label="Mapa interactivo del recorrido oficial ACA Libertador"
+          ></div>
+
+          <div class="legend">
+            <div><span class="legend-dot active-dot"></span> Tramo actual</div>
+            <div><span class="legend-dot pending-dot"></span> Restante</div>
+            <div><span class="legend-dot checkpoint-dot"></span> Hitos</div>
+          </div>
+
+          <article class="map-context-card" id="mapContextCard" hidden>
+            <div class="map-context-icon" aria-hidden="true">!</div>
+            <div class="map-context-copy">
+              <p class="card-label" id="mapContextLabel">Alerta contextual</p>
+              <h3 id="mapContextTitle">Prioridad en intersección</h3>
+              <p id="mapContextText">
+                Cuando el cruce es entre arterias de distintas categorías, los vehículos
+                que circulan por la de mayor importancia son los que tienen prioridad.
+              </p>
+            </div>
+          </article>
+        </section>
+
+      </main>
+
+      <section class="theory-dashboard" id="theoryDashboard">
+        <div class="section-splash theory-splash">
+          <div>
+            <p class="section-label">Examen teórico</p>
+            <h2>Generador de exámenes desde el manual</h2>
+            <p>
+              Simulá parciales distintos, barajá preguntas y chequeá cada respuesta
+              contra la referencia oficial del GCBA.
+            </p>
+          </div>
+          <a class="section-back-link" href="#mainMenu">Volver al menú</a>
+        </div>
+
+        <section class="panel theory-main-panel">
+          <div class="panel-heading">
+            <p class="section-label">Teórico</p>
+            <h2>Generador de examen desde el manual oficial</h2>
+          </div>
+
+          <div class="theory-intro">
+            <p>
+              Este módulo arma exámenes de 40 preguntas a partir de hechos normalizados del
+              manual oficial. Cada respuesta queda vinculada a un tema y sección fuente.
+            </p>
+            <div class="theory-actions">
+              <button class="primary-button" id="generateTheoryExamButton" type="button">
+                Generar examen nuevo
+              </button>
+              <button class="ghost-button" id="nextTheoryQuestionButton" type="button">
+                Siguiente pregunta
+              </button>
+            </div>
+          </div>
+
+          <div class="theory-question-card">
+            <div class="theory-question-top">
+              <div>
+                <p class="card-label" id="theoryQuestionMeta">Pregunta 1 de 40</p>
+                <h3 id="theoryQuestionPrompt">Cargando examen...</h3>
+              </div>
+              <span class="theory-topic-pill" id="theoryQuestionTopic">Tema</span>
+            </div>
+
+            <div class="theory-visual-card" id="theoryVisualCard" hidden></div>
+
+            <div class="theory-options" id="theoryOptions"></div>
+
+            <div class="theory-feedback" id="theoryFeedback" hidden>
+              <strong id="theoryFeedbackTitle">Respuesta</strong>
+              <p id="theoryFeedbackText"></p>
+            </div>
+
+            <div class="theory-source-card" id="theorySourceCard">
+              <p class="card-label">Fuente oficial</p>
+              <strong id="theorySourceTitle">Manual oficial de conduccion GCBA</strong>
+              <p id="theorySourceText">
+                Las preguntas se construyen desde hechos del manual y muestran la seccion de referencia.
+              </p>
+              <p class="theory-source-link">
+                <a
+                  href="https://buenosaires.gob.ar/gcaba_historico/infraestructura/movilidad/curso-de-educacion-vial-para-otorgamiento-de-licencia/material-de-estudio-para-examen-teorico"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Descargar / ver manual oficial
+                </a>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel theory-side-panel">
+          <div class="panel-heading">
+            <p class="section-label">Configuración</p>
+            <h2>Tu examen</h2>
+          </div>
+
+          <div class="theory-config-card">
+            <label class="theory-field">
+              <span>Cantidad de preguntas</span>
+              <input id="theoryQuestionCountInput" type="number" min="5" max="80" step="5" value="40" />
+            </label>
+
+            <label class="theory-field">
+              <span>Aprobación</span>
+              <input id="theoryPassRateInput" type="number" min="50" max="100" step="5" value="85" />
+              <small>% correctas</small>
+            </label>
+
+            <div class="theory-source-toggles" aria-label="Fuentes del examen">
+              <label>
+                <input id="sourceOfficialManual" type="checkbox" checked disabled />
+                <span>Manual oficial validado</span>
+              </label>
+              <label>
+                <input id="sourceCourseNotes" type="checkbox" checked disabled />
+                <span>Notas del curso / instructor</span>
+              </label>
+              <label>
+                <input id="sourceExternalBank" type="checkbox" disabled />
+                <span>Banco externo importado (pendiente)</span>
+              </label>
+            </div>
+
+            <label class="theory-toggle">
+              <input id="autoAdvanceInput" type="checkbox" />
+              <span>Avanzar automáticamente si respondí bien</span>
+            </label>
+
+            <label class="theory-toggle">
+              <input id="shuffleOptionsInput" type="checkbox" checked />
+              <span>Barajar opciones de respuesta</span>
+            </label>
+          </div>
+
+          <div class="theory-stats-grid">
+            <article>
+              <span>Preguntas</span>
+              <strong id="theoryStatsCount">40</strong>
+            </article>
+            <article>
+              <span>Respondidas</span>
+              <strong id="theoryStatsAnswered">0</strong>
+            </article>
+            <article>
+              <span>Aciertos</span>
+              <strong id="theoryStatsCorrect">0</strong>
+            </article>
+            <article>
+              <span>Aprobación</span>
+              <strong id="theoryStatsPassRate">85%</strong>
+            </article>
+            <article>
+              <span>Resultado</span>
+              <strong id="theoryStatsResult">En curso</strong>
+            </article>
+          </div>
+
+          <div class="theory-outline" id="theoryOutline"></div>
+        </aside>
+      </section>
+      </div>
+    </div>
+
+    <script src="./app-config.js"></script>
+    <script src="./circuits/aca-libertador.js"></script>
+    <script src="./circuits/recoleta-comuna2.js"></script>
+    <script src="./circuits/balvanera-comuna3.js"></script>
+    <script src="./circuits/barracas-comuna4.js"></script>
+    <script src="./circuits/boedo-comuna5.js"></script>
+    <script src="./circuits/caballito-comuna6.js"></script>
+    <script src="./circuits/parque-chacabuco-comuna7.js"></script>
+    <script src="./circuits/parque-avellaneda-comuna9.js"></script>
+    <script src="./circuits/floresta-comuna10.js"></script>
+    <script src="./circuits/villa-devoto-comuna11.js"></script>
+    <script src="./circuits/urquiza-comuna12.js"></script>
+    <script src="./circuits/nunez-comuna13.js"></script>
+    <script src="./circuits/palermo-comuna14.js"></script>
+    <script src="./circuits/chacarita-comuna15.js"></script>
+    <script src="./script.js"></script>
+    <script src="./theory-data.js"></script>
+    <script src="./theory.js"></script>
+  </body>
+</html>
