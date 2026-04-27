@@ -34,8 +34,8 @@ const routeSteps = [
     ],
     point: { x: 102, y: 290 },
     mapPoint: {
-      lat: -34.57542,
-      lng: -58.40882,
+      lat: -34.57618,
+      lng: -58.40746,
     },
   },
   {
@@ -380,8 +380,8 @@ const routeSteps = [
     ],
     point: { x: 102, y: 290 },
     mapPoint: {
-      lat: -34.57536,
-      lng: -58.4089,
+      lat: -34.57618,
+      lng: -58.40746,
     },
   },
 ];
