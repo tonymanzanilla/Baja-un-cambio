@@ -118,6 +118,95 @@
   #subtitle    { animation: fadeDown  0.7s cubic-bezier(.22,1,.36,1) 0.25s both; }
   #island-wrap { animation: islandIn  0.9s cubic-bezier(.22,1,.36,1) 0.15s both, float 4.5s ease-in-out 1.1s infinite; }
   #buttons     { animation: fadeUpBtn 0.7s cubic-bezier(.22,1,.36,1) 0.4s  both; }
+
+  @media (max-width: 900px) {
+    body {
+      cursor: auto;
+    }
+
+    #cursor {
+      display: none;
+    }
+
+    #title-wrap {
+      top: 4%;
+      width: min(88vw, 420px);
+    }
+
+    #title-wrap img {
+      width: 100%;
+    }
+
+    #subtitle {
+      bottom: 22%;
+      width: min(84vw, 420px);
+      white-space: normal;
+      text-align: center;
+      line-height: 1.45;
+      letter-spacing: 0.11em;
+      font-size: 12px;
+    }
+
+    #island-wrap {
+      top: 55%;
+    }
+
+    #island-wrap img {
+      width: min(88vw, 620px);
+    }
+
+    #buttons {
+      bottom: 6%;
+      width: 100%;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #buttons img {
+      width: min(78vw, 320px);
+      height: auto;
+    }
+
+    #c1 img { width: 140px; }
+    #c2 img { width: 120px; }
+    #c3 img { width: 110px; }
+    #c4 img { width: 130px; }
+    #c5 img { width: 120px; }
+    #c6 img { width: 130px; }
+    #c7 img { width: 110px; }
+    #c8 img { width: 90px; }
+  }
+
+  @media (max-width: 560px) {
+    #title-wrap {
+      top: 5%;
+      width: min(92vw, 340px);
+    }
+
+    #subtitle {
+      bottom: 24%;
+      width: min(88vw, 320px);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+
+    #island-wrap {
+      top: 56%;
+    }
+
+    #island-wrap img {
+      width: min(96vw, 470px);
+    }
+
+    #c1 { left: 2%; top: 29%; }
+    #c2 { left: 4%; top: 49%; }
+    #c3 { left: 5%; top: 67%; }
+    #c4 { left: 63%; top: 20%; }
+    #c5 { left: 73%; top: 40%; }
+    #c6 { left: 69%; top: 60%; }
+    #c7 { left: 80%; top: 74%; }
+    #c8 { left: 16%; top: 11%; }
+  }
 </style>
 </head>
 <body>
@@ -138,7 +227,7 @@
   </div>
 
   <div id="subtitle" data-sx="0.012" data-sy="0.01">
-    PRACTICÁ EL CIRCUITO EXACTO DEL EXAMEN DE CONDUCIR EN CABA.
+    PRACTICÁ EL CIRCUITO EXACTO DEL EXAMEN DE CONDUCIR EN CABA Y BAJÁ LOS NERVIOS.
   </div>
 
   <div id="island-wrap" data-sx="0.04" data-sy="0.035">

@@ -14,7 +14,7 @@ const routeSteps = activeCircuit.routeSteps;
 const availableCircuits = circuits.map((circuit) => ({
   id: circuit.id,
   title: circuit.title,
-  subtitle: circuit.subtitle,
+  subtitle: circuit.routeSummary ?? "",
   active: circuit.id === activeCircuit.id,
 }));
 const contextualMessages = activeCircuit.contextualMessages;
@@ -260,9 +260,13 @@ function renderCircuitOptions() {
     item.className = `circuit-option${circuit.active ? " active" : ""}`;
     item.tabIndex = circuit.active ? -1 : 0;
     item.role = "button";
-    item.innerHTML = `
+    item.innerHTML = circuit.subtitle
+      ? `
       <strong>${circuit.title}</strong>
       <span>${circuit.subtitle}</span>
+    `
+      : `
+      <strong>${circuit.title}</strong>
     `;
     if (!circuit.active) {
       item.addEventListener("click", () => {
