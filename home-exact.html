@@ -189,42 +189,47 @@
   }
 
   @media (max-width: 560px) {
+    #scene {
+      min-height: 100dvh;
+    }
+
     #title-wrap {
-      top: 7%;
-      width: min(82vw, 300px);
+      top: 5%;
+      width: min(74vw, 270px);
     }
 
     #subtitle {
-      top: 23%;
-      width: min(80vw, 280px);
-      font-size: 10px;
-      letter-spacing: 0.06em;
+      top: 18%;
+      width: min(78vw, 260px);
+      font-size: 9px;
+      letter-spacing: 0.05em;
     }
 
     #island-wrap {
-      top: 57%;
+      top: 46%;
     }
 
     #island-wrap img {
-      width: min(68vw, 300px);
+      width: min(44vw, 210px);
     }
 
     #buttons {
-      gap: 12px;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 34px);
+      gap: 10px;
     }
 
     #buttons img {
-      width: min(78vw, 290px);
+      width: min(58vw, 215px);
     }
 
-    #c1 { left: 3%; top: 33%; }
-    #c2 { left: 4%; top: 51%; }
-    #c3 { left: 5%; top: 69%; }
-    #c4 { left: 66%; top: 24%; }
-    #c5 { left: 74%; top: 43%; }
-    #c6 { left: 70%; top: 63%; }
-    #c7 { left: 81%; top: 79%; }
-    #c8 { left: 18%; top: 16%; }
+    #c1 { left: 4%; top: 34%; }
+    #c2 { left: 6%; top: 56%; }
+    #c3 { left: 6%; top: 76%; }
+    #c4 { left: 67%; top: 20%; }
+    #c5 { left: 77%; top: 43%; }
+    #c6 { left: 73%; top: 68%; }
+    #c7 { left: 83%; top: 84%; }
+    #c8 { left: 18%; top: 14%; }
   }
 </style>
 </head>
