@@ -11,10 +11,18 @@ if (!activeCircuit) {
 }
 
 const routeSteps = activeCircuit.routeSteps;
+function getCircuitCardSubtitle(circuit) {
+  const summary = typeof circuit.routeSummary === "string" ? circuit.routeSummary.trim() : "";
+  if (summary) {
+    return summary;
+  }
+  return "";
+}
+
 const availableCircuits = circuits.map((circuit) => ({
   id: circuit.id,
   title: circuit.title,
-  subtitle: circuit.routeSummary ?? "",
+  subtitle: getCircuitCardSubtitle(circuit),
   active: circuit.id === activeCircuit.id,
 }));
 const contextualMessages = activeCircuit.contextualMessages;

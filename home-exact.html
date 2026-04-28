@@ -121,7 +121,16 @@
 
   @media (max-width: 900px) {
     body {
+      min-height: 100dvh;
+    }
+
+    body {
       cursor: auto;
+    }
+
+    #scene {
+      min-height: 100dvh;
+      overflow: hidden;
     }
 
     #cursor {
@@ -129,8 +138,8 @@
     }
 
     #title-wrap {
-      top: 4%;
-      width: min(88vw, 420px);
+      top: 6%;
+      width: min(84vw, 360px);
     }
 
     #title-wrap img {
@@ -138,74 +147,84 @@
     }
 
     #subtitle {
-      bottom: 22%;
+      top: 24%;
+      bottom: auto;
       width: min(84vw, 420px);
       white-space: normal;
       text-align: center;
       line-height: 1.45;
-      letter-spacing: 0.11em;
+      letter-spacing: 0.09em;
       font-size: 12px;
+      text-shadow: 0 3px 10px rgba(0, 0, 70, 0.45);
     }
 
     #island-wrap {
-      top: 55%;
+      top: 58%;
     }
 
     #island-wrap img {
-      width: min(88vw, 620px);
+      width: min(72vw, 430px);
     }
 
     #buttons {
-      bottom: 6%;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
       width: 100%;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     #buttons img {
-      width: min(78vw, 320px);
+      width: min(80vw, 300px);
       height: auto;
     }
 
-    #c1 img { width: 140px; }
-    #c2 img { width: 120px; }
-    #c3 img { width: 110px; }
-    #c4 img { width: 130px; }
-    #c5 img { width: 120px; }
-    #c6 img { width: 130px; }
-    #c7 img { width: 110px; }
-    #c8 img { width: 90px; }
+    #c1 img { width: 120px; }
+    #c2 img { width: 100px; }
+    #c3 img { width: 94px; }
+    #c4 img { width: 108px; }
+    #c5 img { width: 100px; }
+    #c6 img { width: 112px; }
+    #c7 img { width: 92px; }
+    #c8 img { width: 72px; }
   }
 
   @media (max-width: 560px) {
     #title-wrap {
-      top: 5%;
-      width: min(92vw, 340px);
+      top: 7%;
+      width: min(82vw, 300px);
     }
 
     #subtitle {
-      bottom: 24%;
-      width: min(88vw, 320px);
-      font-size: 11px;
-      letter-spacing: 0.08em;
+      top: 23%;
+      width: min(80vw, 280px);
+      font-size: 10px;
+      letter-spacing: 0.06em;
     }
 
     #island-wrap {
-      top: 56%;
+      top: 57%;
     }
 
     #island-wrap img {
-      width: min(96vw, 470px);
+      width: min(68vw, 300px);
     }
 
-    #c1 { left: 2%; top: 29%; }
-    #c2 { left: 4%; top: 49%; }
-    #c3 { left: 5%; top: 67%; }
-    #c4 { left: 63%; top: 20%; }
-    #c5 { left: 73%; top: 40%; }
-    #c6 { left: 69%; top: 60%; }
-    #c7 { left: 80%; top: 74%; }
-    #c8 { left: 16%; top: 11%; }
+    #buttons {
+      gap: 12px;
+    }
+
+    #buttons img {
+      width: min(78vw, 290px);
+    }
+
+    #c1 { left: 3%; top: 33%; }
+    #c2 { left: 4%; top: 51%; }
+    #c3 { left: 5%; top: 69%; }
+    #c4 { left: 66%; top: 24%; }
+    #c5 { left: 74%; top: 43%; }
+    #c6 { left: 70%; top: 63%; }
+    #c7 { left: 81%; top: 79%; }
+    #c8 { left: 18%; top: 16%; }
   }
 </style>
 </head>
