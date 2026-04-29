@@ -31,6 +31,7 @@ const mapRoutePoints = activeCircuit.mapRoutePoints;
 const progressIndexByStep = activeCircuit.progressIndexByStep;
 
 const config = window.APP_CONFIG ?? {};
+const assistantData = window.DRIVING_ASSISTANT_DATA ?? { starterPrompts: [], knowledgeBase: [] };
 
 const elements = {
   startStudyMode: document.querySelector("#startStudyMode"),
@@ -79,6 +80,14 @@ const elements = {
   mapContextText: document.querySelector("#mapContextText"),
   heroRouteSummary: document.querySelector("#heroRouteSummary"),
   heroRouteBlurb: document.querySelector("#heroRouteBlurb"),
+  assistantToggleButton: document.querySelector("#assistantToggleButton"),
+  assistantPanel: document.querySelector("#assistantPanel"),
+  assistantCloseButton: document.querySelector("#assistantCloseButton"),
+  assistantCircuitPill: document.querySelector("#assistantCircuitPill"),
+  assistantStepPill: document.querySelector("#assistantStepPill"),
+  assistantMessages: document.querySelector("#assistantMessages"),
+  assistantForm: document.querySelector("#assistantForm"),
+  assistantInput: document.querySelector("#assistantInput"),
 };
 
 const state = {
@@ -90,6 +99,7 @@ const state = {
   moveCooldownUntil: 0,
   reachedCurrentCheckpoint: false,
   lastDistanceToCheckpoint: null,
+  assistantOpen: false,
 };
 
 const streetViewState = {
@@ -109,6 +119,17 @@ const mapState = {
   completedLine: null,
   currentMarker: null,
   nextMarker: null,
+};
+
+const assistantState = {
+  messages: [
+    {
+      role: "bot",
+      text: assistantData.welcomeMessage,
+      sources: ["Base local del asistente"],
+    },
+  ],
+  pending: false,
 };
 
 function setMode(mode) {
@@ -293,6 +314,384 @@ function renderCircuitOptions() {
     }
     elements.circuitOptions.append(item);
   });
+}
+
+function normalizeAssistantText(value) {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getAssistantStepContext(step = routeSteps[state.currentStep]) {
+  const relatedMessages = contextualMessages.filter((message) => message.stepId === step.id);
+  const activeRule = getActiveMapContextRule();
+
+  return {
+    circuitId: activeCircuit.id,
+    circuitTitle: activeCircuit.title,
+    stepId: step.id,
+    stepTitle: step.title,
+    stepPrompt: step.prompt,
+    stepDescription: step.description,
+    stepCueNear: step.cue?.nearText ?? "",
+    stepCueFar: step.cue?.farText ?? "",
+    stepAlerts: step.alerts ?? [],
+    relatedMessages,
+    activeRule,
+  };
+}
+
+function getAssistantDocuments(stepContext) {
+  const stepDocuments = stepContext.relatedMessages.map((message) => ({
+    id: `context-${message.id}`,
+    title: message.title,
+    topic: message.category,
+    keywords: [
+      message.title,
+      message.subtitle,
+      message.category,
+      message.observation,
+      message.takeaway,
+    ],
+    content: `${message.observation} ${message.takeaway} ${message.source.quote}`,
+    source: message.source.document,
+    section: message.source.section,
+    priorityBoost: 3,
+  }));
+
+  const routeDocument = {
+    id: `step-${stepContext.stepId}`,
+    title: stepContext.stepTitle,
+    topic: "Tramo actual",
+    keywords: [
+      stepContext.stepTitle,
+      stepContext.stepPrompt,
+      stepContext.stepCueNear,
+      stepContext.stepCueFar,
+      stepContext.circuitTitle,
+      "aca",
+      "doblar",
+      "derecha",
+      "izquierda",
+      "cruce",
+      "contramano",
+    ],
+    content: `${stepContext.stepDescription} ${stepContext.stepPrompt} ${stepContext.stepCueNear} ${stepContext.stepCueFar}`,
+    source: stepContext.circuitTitle,
+    section: "Recorrido actual",
+    priorityBoost: 4,
+  };
+
+  const alertDocuments = stepContext.stepAlerts.map((alert, index) => ({
+    id: `alert-${stepContext.stepId}-${index}`,
+    title: alert.title,
+    topic: "Alerta de maniobra",
+    keywords: [alert.type, alert.title, alert.body, "maniobra", "giro", "cruce"],
+    content: alert.body,
+    source: stepContext.circuitTitle,
+    section: "Alertas del hito",
+    priorityBoost: 2,
+  }));
+
+  const activeRuleDocument = stepContext.activeRule
+    ? [
+        {
+          id: `rule-${stepContext.activeRule.id}`,
+          title: stepContext.activeRule.title,
+          topic: stepContext.activeRule.label,
+          keywords: [
+            stepContext.activeRule.title,
+            stepContext.activeRule.label,
+            stepContext.activeRule.text,
+          ],
+          content: stepContext.activeRule.text,
+          source: stepContext.circuitTitle,
+          section: "Contexto del mapa",
+          priorityBoost: 3,
+        },
+      ]
+    : [];
+
+  return [
+    ...assistantData.knowledgeBase,
+    routeDocument,
+    ...alertDocuments,
+    ...stepDocuments,
+    ...activeRuleDocument,
+  ];
+}
+
+function scoreAssistantDocument(questionText, document, stepContext) {
+  const haystack = normalizeAssistantText(
+    [document.title, document.topic, document.content, ...(document.keywords ?? [])].join(" ")
+  );
+  const tokens = questionText.split(" ").filter(Boolean);
+  let score = document.priorityBoost ?? 0;
+
+  tokens.forEach((token) => {
+    if (token.length < 3) {
+      return;
+    }
+    if (haystack.includes(token)) {
+      score += token.length > 6 ? 4 : 2;
+    }
+  });
+
+  if (
+    questionText.includes("aca") ||
+    questionText.includes("este cruce") ||
+    questionText.includes("esta maniobra") ||
+    questionText.includes("por que dobl")
+  ) {
+    if (document.id.startsWith("step-") || document.id.startsWith("context-") || document.id.startsWith("rule-")) {
+      score += 4;
+    }
+  }
+
+  if (stepContext.stepPrompt && haystack.includes(normalizeAssistantText(stepContext.stepPrompt))) {
+    score += 2;
+  }
+
+  return score;
+}
+
+function getAssistantMatches(question, stepContext) {
+  const normalizedQuestion = normalizeAssistantText(question);
+  const documents = getAssistantDocuments(stepContext);
+
+  return documents
+    .map((document) => ({
+      document,
+      score: scoreAssistantDocument(normalizedQuestion, document, stepContext),
+    }))
+    .filter((match) => match.score > 0)
+    .sort((left, right) => right.score - left.score)
+    .slice(0, 3);
+}
+
+function isGeneralRoadRuleQuestion(questionText) {
+  return [
+    "bici",
+    "bicicleta",
+    "ciclista",
+    "pare",
+    "ceda",
+    "semaforo",
+    "prioridad",
+    "rotonda",
+    "peaton",
+    "peatones",
+  ].some((term) => questionText.includes(term));
+}
+
+function buildAssistantAnswer(question, stepContext) {
+  const normalizedQuestion = normalizeAssistantText(question);
+  const matches = getAssistantMatches(question, stepContext);
+
+  if (!matches.length) {
+    return {
+      text:
+        "No lo puedo afirmar con seguridad solo con el material que tengo cargado ahora. Si queres, reformulalo mas concreto o despues le cargamos mas fragmentos del manual oficial.",
+      sources: ["Base local del asistente"],
+    };
+  }
+
+  if (normalizedQuestion.includes("bici") || normalizedQuestion.includes("bicicleta")) {
+    const bikeMatch = matches.find((match) => match.document.id === "bike-overtake");
+    if (bikeMatch) {
+      return {
+        text:
+          "Con una bici o un ciclista, la idea es pasar con distancia lateral segura, sin encerrar ni apurar. En esta V1 local no tengo cargada una medida oficial exacta para decirte un numero con seguridad, asi que prefiero no inventarlo.",
+        sources: [`${bikeMatch.document.source} · ${bikeMatch.document.section}`],
+      };
+    }
+  }
+
+  const [primaryMatch, secondaryMatch] = matches;
+  const intro =
+    primaryMatch.document.id.startsWith("step-") || primaryMatch.document.id.startsWith("context-")
+      ? `Por el tramo actual, yo lo pensaria asi: ${primaryMatch.document.content}`
+      : primaryMatch.document.content;
+
+  const currentStepHint =
+    !isGeneralRoadRuleQuestion(normalizedQuestion) &&
+    (normalizedQuestion.includes("aca") ||
+      normalizedQuestion.includes("este") ||
+      normalizedQuestion.includes("doblar"))
+      ? `\n\nEn este momento estas en "${stepContext.stepTitle}". La instruccion visible es: ${stepContext.stepPrompt}`
+      : "";
+
+  const support =
+    secondaryMatch && secondaryMatch.document.id !== primaryMatch.document.id
+      ? `\n\nComo respaldo, tambien aplica esto: ${secondaryMatch.document.content}`
+      : "";
+
+  return {
+    text: `${intro}${currentStepHint}${support}`,
+    sources: matches.map((match) => `${match.document.source} · ${match.document.section}`),
+  };
+}
+
+function buildAssistantHistoryPayload() {
+  return assistantState.messages
+    .slice(-6)
+    .map((message) => ({
+      role: message.role === "bot" ? "assistant" : message.role,
+      content: message.text,
+    }));
+}
+
+async function requestAssistantApi(question, stepContext) {
+  const response = await fetch("/api/assistant", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      question,
+      context: stepContext,
+      history: buildAssistantHistoryPayload(),
+    }),
+  });
+
+  if (!response.ok) {
+    const errorPayload = await response.json().catch(() => null);
+    const details = errorPayload?.message || errorPayload?.error || `HTTP ${response.status}`;
+    throw new Error(details);
+  }
+
+  const payload = await response.json();
+  if (!payload?.answer) {
+    throw new Error("Respuesta vacia del asistente.");
+  }
+
+  return {
+    text: payload.answer,
+    sources: payload.sources ?? ["Claude"],
+  };
+}
+
+function createAssistantMessageElement(message) {
+  const article = document.createElement("article");
+  article.className = `assistant-message ${message.role}`;
+
+  const meta = document.createElement("div");
+  meta.className = "assistant-message-meta";
+  meta.textContent = message.role === "user" ? "Tu duda" : "Instructor";
+
+  const body = document.createElement("div");
+  body.className = "assistant-message-body";
+  body.textContent = message.text;
+
+  article.append(meta, body);
+
+  if (message.role === "bot" && message.sources?.length) {
+    const sources = document.createElement("div");
+    sources.className = "assistant-message-sources";
+    sources.textContent = `Base usada: ${message.sources.join(" / ")}`;
+    article.append(sources);
+  }
+
+  return article;
+}
+
+function renderAssistantMessages() {
+  if (!elements.assistantMessages) {
+    return;
+  }
+
+  elements.assistantMessages.replaceChildren();
+  assistantState.messages.forEach((message) => {
+    elements.assistantMessages.append(createAssistantMessageElement(message));
+  });
+  if (assistantState.pending) {
+    const pendingMessage = document.createElement("article");
+    pendingMessage.className = "assistant-message bot";
+    pendingMessage.innerHTML = `
+      <div class="assistant-message-meta">Instructor</div>
+      <div class="assistant-message-body">Pensando la mejor respuesta...</div>
+    `;
+    elements.assistantMessages.append(pendingMessage);
+  }
+  elements.assistantMessages.scrollTop = elements.assistantMessages.scrollHeight;
+}
+
+function renderAssistantMeta() {
+  if (!elements.assistantCircuitPill || !elements.assistantStepPill) {
+    return;
+  }
+
+  const step = routeSteps[state.currentStep];
+  elements.assistantCircuitPill.textContent = activeCircuit.title;
+  elements.assistantStepPill.textContent = `${step.segment} · ${step.title}`;
+}
+
+function syncAssistantPanel() {
+  if (!elements.assistantPanel || !elements.assistantToggleButton) {
+    return;
+  }
+
+  elements.assistantPanel.classList.toggle("is-open", state.assistantOpen);
+  elements.assistantPanel.setAttribute("aria-hidden", state.assistantOpen ? "false" : "true");
+  elements.assistantToggleButton.setAttribute("aria-expanded", state.assistantOpen ? "true" : "false");
+}
+
+function setAssistantOpen(nextValue) {
+  state.assistantOpen = nextValue;
+  syncAssistantPanel();
+  if (nextValue) {
+    renderAssistantMeta();
+    renderAssistantMessages();
+    window.setTimeout(() => {
+      elements.assistantInput?.focus();
+    }, 40);
+  }
+}
+
+async function handleAssistantSubmit(event) {
+  event.preventDefault();
+  const question = elements.assistantInput?.value.trim();
+  if (!question || assistantState.pending) {
+    return;
+  }
+
+  const stepContext = getAssistantStepContext();
+  assistantState.messages.push({ role: "user", text: question });
+  elements.assistantInput.value = "";
+  assistantState.pending = true;
+  renderAssistantMessages();
+
+  try {
+    const answer = await requestAssistantApi(question, stepContext);
+    assistantState.messages.push({ role: "bot", text: answer.text, sources: answer.sources });
+  } catch (error) {
+    const fallbackAnswer = buildAssistantAnswer(question, stepContext);
+    assistantState.messages.push({
+      role: "bot",
+      text: `${fallbackAnswer.text}\n\nNota: por ahora te respondí con la base local porque la API externa no estuvo disponible.`,
+      sources: fallbackAnswer.sources,
+    });
+  } finally {
+    assistantState.pending = false;
+    renderAssistantMessages();
+  }
+}
+
+function isEditableTarget(target) {
+  if (!target) {
+    return false;
+  }
+
+  const tagName = target.tagName?.toLowerCase();
+  return (
+    tagName === "input" ||
+    tagName === "textarea" ||
+    target.isContentEditable
+  );
 }
 
 function getActiveMapContextRule() {
@@ -947,6 +1346,7 @@ function render() {
   renderMap();
   renderRouteCue();
   renderMapContextCard();
+  renderAssistantMeta();
 }
 
 elements.startStudyMode.addEventListener("click", () => setMode("study"));
@@ -962,6 +1362,10 @@ elements.decisionButtons.forEach((button) => {
 });
 
 window.addEventListener("keydown", (event) => {
+  if (isEditableTarget(event.target)) {
+    return;
+  }
+
   if (["ArrowLeft", "ArrowRight", "ArrowUp", " "].includes(event.key)) {
     event.preventDefault();
   }
@@ -986,6 +1390,10 @@ window.addEventListener("keydown", (event) => {
 });
 
 window.addEventListener("keyup", (event) => {
+  if (isEditableTarget(event.target)) {
+    return;
+  }
+
   if (event.key === "ArrowUp") {
     holdForwardStop();
   }
@@ -998,6 +1406,15 @@ elements.driveForwardButton.addEventListener("pointerdown", holdForwardStart);
 elements.driveForwardButton.addEventListener("pointerup", holdForwardStop);
 elements.driveForwardButton.addEventListener("pointerleave", holdForwardStop);
 elements.driveForwardButton.addEventListener("pointercancel", holdForwardStop);
+elements.assistantToggleButton?.addEventListener("click", () => {
+  setAssistantOpen(!state.assistantOpen);
+});
+elements.assistantCloseButton?.addEventListener("click", () => {
+  setAssistantOpen(false);
+});
+elements.assistantForm?.addEventListener("submit", handleAssistantSubmit);
 
+renderAssistantMessages();
+syncAssistantPanel();
 render();
 initStreetView();

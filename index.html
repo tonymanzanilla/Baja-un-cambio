@@ -490,6 +490,63 @@
           <div class="theory-outline" id="theoryOutline"></div>
         </aside>
       </section>
+
+      <button
+        class="assistant-toggle"
+        id="assistantToggleButton"
+        type="button"
+        aria-controls="assistantPanel"
+        aria-expanded="false"
+      >
+        <span class="assistant-toggle-badge">Instructor IA</span>
+        <strong>Tenes una duda?</strong>
+      </button>
+
+      <aside class="assistant-panel" id="assistantPanel" aria-hidden="true">
+        <div class="assistant-panel-header">
+          <div>
+            <p class="section-label">Asistente del examen</p>
+            <h2>Preguntale al instructor</h2>
+          </div>
+          <button
+            class="assistant-close"
+            id="assistantCloseButton"
+            type="button"
+            aria-label="Cerrar asistente"
+          >
+            ×
+          </button>
+        </div>
+
+        <p class="assistant-panel-copy">
+          Responde solo con el material cargado y el tramo actual. Si no encuentra respaldo,
+          te lo dice sin inventar.
+        </p>
+
+        <div class="assistant-meta-card">
+          <span class="assistant-meta-pill" id="assistantCircuitPill">Circuito actual</span>
+          <span class="assistant-meta-pill" id="assistantStepPill">Tramo actual</span>
+        </div>
+
+        <div class="assistant-messages" id="assistantMessages" aria-live="polite"></div>
+
+        <form class="assistant-form" id="assistantForm">
+          <label class="assistant-field" for="assistantInput">
+            <span>Escribi tu duda</span>
+            <textarea
+              id="assistantInput"
+              rows="3"
+              placeholder='Ej: "A cuanto espacio tengo que pasar de una bici para hacerlo de forma segura?"'
+            ></textarea>
+          </label>
+          <div class="assistant-form-actions">
+            <p class="assistant-disclaimer">V1 local: manual resumido + contexto del recorrido.</p>
+            <button class="primary-button" id="assistantSubmitButton" type="submit">
+              Preguntar
+            </button>
+          </div>
+        </form>
+      </aside>
       </div>
     </div>
 
@@ -508,7 +565,8 @@
     <script src="./circuits/nunez-comuna13.js?v=20260428f"></script>
     <script src="./circuits/palermo-comuna14.js?v=20260428f"></script>
     <script src="./circuits/chacarita-comuna15.js?v=20260428f"></script>
-    <script src="./script.js?v=20260428f"></script>
+    <script src="./assistant-data.js?v=20260429a"></script>
+    <script src="./script.js?v=20260429a"></script>
     <script src="./theory-data.js?v=20260428f"></script>
     <script src="./theory.js?v=20260428f"></script>
   </body>
