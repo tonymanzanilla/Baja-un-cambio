@@ -2365,30 +2365,31 @@ button:hover {
   }
 
   .mobile-practice-switch {
-    position: sticky;
-    top: 10px;
-    z-index: 24;
+    position: fixed;
+    left: 14px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    z-index: 58;
     display: inline-grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    width: fit-content;
-    margin: -6px 0 10px;
+    width: auto;
+    margin: 0;
     padding: 6px;
     border-radius: 999px;
     border: 1px solid rgba(17, 13, 11, 0.12);
-    background: rgba(255, 247, 232, 0.94);
-    box-shadow: 0 10px 24px rgba(28, 19, 14, 0.08);
+    background: rgba(255, 247, 232, 0.97);
+    box-shadow: 0 12px 28px rgba(28, 19, 14, 0.14);
   }
 
   .mobile-practice-tab {
-    min-width: 104px;
-    padding: 11px 16px;
+    min-width: 88px;
+    padding: 10px 14px;
     border-radius: 999px;
     border: 1px solid transparent;
     background: transparent;
     color: var(--ink);
     font-family: "Space Grotesk", sans-serif;
-    font-size: 0.98rem;
+    font-size: 0.92rem;
     font-weight: 700;
   }
 
