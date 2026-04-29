@@ -80,6 +80,9 @@ const elements = {
   mapContextText: document.querySelector("#mapContextText"),
   heroRouteSummary: document.querySelector("#heroRouteSummary"),
   heroRouteBlurb: document.querySelector("#heroRouteBlurb"),
+  practiceDashboard: document.querySelector("#practiceDashboard"),
+  mobileExperienceViewButton: document.querySelector("#mobileExperienceViewButton"),
+  mobileMapViewButton: document.querySelector("#mobileMapViewButton"),
   assistantToggleButton: document.querySelector("#assistantToggleButton"),
   assistantPanel: document.querySelector("#assistantPanel"),
   assistantCloseButton: document.querySelector("#assistantCloseButton"),
@@ -100,6 +103,7 @@ const state = {
   reachedCurrentCheckpoint: false,
   lastDistanceToCheckpoint: null,
   assistantOpen: false,
+  mobilePracticeView: "experience",
 };
 
 const streetViewState = {
@@ -676,6 +680,29 @@ function renderAssistantMeta() {
   const step = routeSteps[state.currentStep];
   elements.assistantCircuitPill.textContent = activeCircuit.title;
   elements.assistantStepPill.textContent = `${step.segment} · ${step.title}`;
+}
+
+function isMobilePracticeLayout() {
+  return window.matchMedia("(max-width: 720px)").matches;
+}
+
+function syncMobilePracticeView() {
+  if (!elements.practiceDashboard || !elements.mobileExperienceViewButton || !elements.mobileMapViewButton) {
+    return;
+  }
+
+  const isMobile = isMobilePracticeLayout();
+  elements.practiceDashboard.classList.toggle("mobile-view-experience", isMobile && state.mobilePracticeView === "experience");
+  elements.practiceDashboard.classList.toggle("mobile-view-map", isMobile && state.mobilePracticeView === "map");
+  elements.mobileExperienceViewButton.classList.toggle("active", state.mobilePracticeView === "experience");
+  elements.mobileMapViewButton.classList.toggle("active", state.mobilePracticeView === "map");
+  elements.mobileExperienceViewButton.setAttribute("aria-pressed", state.mobilePracticeView === "experience" ? "true" : "false");
+  elements.mobileMapViewButton.setAttribute("aria-pressed", state.mobilePracticeView === "map" ? "true" : "false");
+}
+
+function setMobilePracticeView(nextView) {
+  state.mobilePracticeView = nextView === "map" ? "map" : "experience";
+  syncMobilePracticeView();
 }
 
 function syncAssistantPanel() {
@@ -1460,9 +1487,17 @@ elements.assistantToggleButton?.addEventListener("click", () => {
 elements.assistantCloseButton?.addEventListener("click", () => {
   setAssistantOpen(false);
 });
+elements.mobileExperienceViewButton?.addEventListener("click", () => {
+  setMobilePracticeView("experience");
+});
+elements.mobileMapViewButton?.addEventListener("click", () => {
+  setMobilePracticeView("map");
+});
 elements.assistantForm?.addEventListener("submit", handleAssistantSubmit);
+window.addEventListener("resize", syncMobilePracticeView);
 
 renderAssistantMessages();
 syncAssistantPanel();
+syncMobilePracticeView();
 render();
 initStreetView();
