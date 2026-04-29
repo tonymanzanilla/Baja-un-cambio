@@ -1,4 +1,5 @@
 const assistantData = require("../assistant-data.js");
+const manualChunks = require("../assistant-manual.json");
 
 function normalizeText(value) {
   return (value ?? "")
@@ -114,7 +115,7 @@ function buildStepDocuments(context = {}) {
 
 function selectKnowledge(question, context) {
   const normalizedQuestion = normalizeText(question);
-  const documents = [...assistantData.knowledgeBase, ...buildStepDocuments(context)];
+  const documents = [...assistantData.knowledgeBase, ...manualChunks, ...buildStepDocuments(context)];
 
   return documents
     .map((document) => ({
@@ -123,7 +124,7 @@ function selectKnowledge(question, context) {
     }))
     .filter((match) => match.score > 0)
     .sort((left, right) => right.score - left.score)
-    .slice(0, 6)
+    .slice(0, 5)
     .map((match) => match.document);
 }
 
@@ -139,7 +140,7 @@ function buildSystemPrompt(question, context, selectedDocs) {
   const sourcesBlock = selectedDocs
     .map(
       (doc, index) =>
-        `[Fuente ${index + 1}] ${doc.title}\nTema: ${doc.topic}\nOrigen: ${doc.source} · ${doc.section}\nContenido: ${doc.content}`
+        `[Fuente ${index + 1}] ${doc.title}\nTema: ${doc.topic}\nOrigen: ${doc.source} · ${doc.section}\nContenido: ${(doc.content ?? "").slice(0, 1800)}`
     )
     .join("\n\n");
 
@@ -157,6 +158,7 @@ Instrucciones finales:
 - Si la pregunta depende del lugar actual, podes apoyarte en el contexto del tramo.
 - Si la pregunta es general, no fuerces el contexto del tramo.
 - No cites leyes ni numeros que no esten en las fuentes.
+- Si una fuente del manual incluye pagina, podes mencionarla como referencia util.
 - Termina con una indicacion util o una aclaracion prudente.`;
 }
 
@@ -229,7 +231,11 @@ module.exports = async function assistantHandler(req, res) {
     const reply = data.content?.[0]?.text?.trim() || "";
     return res.status(200).json({
       answer: reply,
-      sources: selectedDocs.map((doc) => `${doc.source} · ${doc.section}`),
+      sources: selectedDocs.map((doc) =>
+        typeof doc.page === "number"
+          ? `${doc.source} · Página ${doc.page}`
+          : `${doc.source} · ${doc.section}`
+      ),
       model: anthropicPayload.model,
     });
   } catch (error) {
