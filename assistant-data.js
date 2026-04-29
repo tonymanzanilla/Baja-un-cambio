@@ -1,24 +1,87 @@
 (function attachAssistantData(globalScope) {
   const data = {
     starterPrompts: [
+      "Nunca use Street View en serio. Como practico un recorrido sin perderme?",
+      "Que me conviene hacer apenas me siento en el auto del examen para arrancar prolijo?",
       "A cuanto espacio tengo que pasar de una bici para hacerlo de forma segura?",
-      "En un cruce sin semaforo, quien tiene prioridad de paso si llegamos al mismo tiempo?",
-      "Si veo una senal de PARE, tengo que frenar por completo o solo bajar la velocidad?",
       "Que suelen observarme en un giro durante el examen practico?",
     ],
     systemPrompt: [
-      "Sos un instructor virtual para el examen practico de manejo en CABA.",
-      "Responde en espanol rioplatense, usando vos, con tono claro, tranquilo y cero canchereo sobrador.",
-      "Tu trabajo es bajar ansiedad, explicar simple y no inventar reglas.",
+      "Sos un acompanante virtual para el examen practico de manejo en CABA.",
+      "Responde en espanol rioplatense, usando vos, con tono claro, humano, paciente y empatico.",
+      "Tu trabajo es bajar ansiedad, explicar simple, acompanar a alguien que puede estar muy perdido y no inventar reglas.",
+      "Podes explicar tanto reglas viales como la logica de la app, el uso de Street View y pequeños detalles practicos del examen.",
+      "Si la persona suena novata, responde paso a paso, sin tecnicismos innecesarios y con calma.",
+      "Tambien podes orientar sobre modales y preparacion del examen: saludar, sentarse tranquilo, ponerse el cinto, acomodarse, prender luces si corresponde y mostrar una actitud prolija sin sobreactuar.",
       "Usa solamente el contexto y las fuentes que te pasan en cada request.",
       "Si la informacion no alcanza para afirmar algo con seguridad, decilo explicitamente.",
       "No des numeros, multas o reglas exactas si no aparecen en las fuentes.",
       "Cuando la pregunta depende del lugar actual, podes usar el contexto del tramo.",
-      "Responde corto: 2 a 5 oraciones. Nada de introducciones largas.",
+      "Responde corto pero util: 3 a 6 oraciones. Si sirve, inclui pasos breves o un mini consejo final.",
     ].join(" "),
     welcomeMessage:
-      "Estoy para dudas concretas del examen y del recorrido. Respondo solo con el material cargado y el contexto actual.",
+      "Estoy para ayudarte a entender el recorrido, usar la app y llegar mas tranquilo al practico. Me podes preguntar desde una duda de prioridad hasta como usar Street View, que hacer apenas te sentas en el auto o detalles finos del examen.",
     knowledgeBase: [
+      {
+        id: "app-purpose",
+        title: "Para que sirve la app",
+        topic: "Uso de la app",
+        keywords: ["app", "sirve", "para que", "juego", "simulador", "baja 2 cambios", "que hago aca"],
+        content:
+          "Baja 2 Cambios sirve para practicar circuitos reales del examen practico de manejo en CABA antes de rendir. La idea es entender el recorrido, reconocer giros y cruces importantes, bajar nervios y llegar mas orientado al examen.",
+        source: "Guia de uso de la app",
+        section: "Objetivo general",
+      },
+      {
+        id: "street-view-basics",
+        title: "Como usar Street View en la practica",
+        topic: "Uso de Street View",
+        keywords: ["street view", "como usar", "moverme", "avanzar", "girar", "mouse", "perderme", "usar la app"],
+        content:
+          "Para practicar con Street View, primero mira la instruccion del tramo actual. Despues orienta la vista con el mouse, hace click hacia adelante sobre la calle para avanzar y usa el mapa y los textos de apoyo para confirmar si vas por el recorrido correcto. Si te perdes, no pasa nada: volve a mirar el nombre de la calle, la instruccion visible y reubicate antes de seguir.",
+        source: "Guia de uso de la app",
+        section: "Practica con Street View",
+      },
+      {
+        id: "study-vs-exam",
+        title: "Diferencia entre modo estudio y modo examen",
+        topic: "Uso de la app",
+        keywords: ["modo estudio", "modo examen", "diferencia", "como funciona", "juego", "practica"],
+        content:
+          "El modo estudio esta pensado para practicar con mas ayudas y entender que te pide cada tramo. El modo examen saca parte de esas ayudas para que pruebes si realmente podes leer el entorno y decidir con mas autonomia.",
+        source: "Guia de uso de la app",
+        section: "Modos de practica",
+      },
+      {
+        id: "first-minute-exam",
+        title: "Primer minuto dentro del auto",
+        topic: "Examen practico",
+        keywords: ["me siento", "primer minuto", "cinto", "asiento", "espejos", "arrancar", "auto", "saludar"],
+        content:
+          "Apenas te sentas en el auto del examen, conviene saludar tranquilo, acomodar asiento y espejos, ponerte el cinturon sin que te lo recuerden y mostrar que estas ordenado antes de arrancar. La idea no es hacer teatro, sino transmitir que manejas con rutina y atencion desde el minuto cero.",
+        source: "Guia de examen practico",
+        section: "Inicio del examen",
+      },
+      {
+        id: "good-student-acting",
+        title: "Actitud prolija sin sobreactuar",
+        topic: "Examen practico",
+        keywords: ["acting", "buen estudiante", "nervios", "instructor", "saludar", "actitud", "prolijo"],
+        content:
+          "En el practico ayuda mucho una actitud calma, prolija y respetuosa. Saludar, escuchar la instruccion completa, no apurarte, ponerte el cinturon enseguida y mostrar chequeos basicos transmite seguridad. No hace falta sobreactuar ni hacer movimientos raros: alcanza con ser ordenado y visible en lo importante.",
+        source: "Guia de examen practico",
+        section: "Actitud durante la evaluacion",
+      },
+      {
+        id: "lights-and-basics",
+        title: "Luces y chequeos basicos",
+        topic: "Examen practico",
+        keywords: ["luces", "prender luces", "balizas", "chequeos", "arrancar", "auto", "basico"],
+        content:
+          "Si la situacion lo pide o el evaluador lo menciona, conviene resolver luces y controles basicos con naturalidad. No siempre hay que encender cosas porque si: primero escucha la consigna, ubicati y mostra que conoces lo basico del auto sin entrar en apuro.",
+        source: "Guia de examen practico",
+        section: "Controles basicos del vehiculo",
+      },
       {
         id: "priority-avenue",
         title: "Prioridad entre avenida y calle",
@@ -138,6 +201,16 @@
           "En el examen practico suelen mirar lectura del entorno, prioridad de paso, senalizacion, control del auto, suavidad en los giros y respeto por peatones y sendas. La idea no es solo doblar bien, sino mostrar criterio y calma.",
         source: "Guia de examen practico",
         section: "Criterios de evaluacion",
+      },
+      {
+        id: "ask-any-detail",
+        title: "Preguntas chicas tambien sirven",
+        topic: "Uso del asistente",
+        keywords: ["preguntar", "detalle", "cosita", "duda chica", "momento del practico", "que puedo preguntar"],
+        content:
+          "Este asistente tambien sirve para dudas chiquitas y muy concretas del practico: desde una prioridad puntual hasta como encarar el saludo, cuando ponerte el cinturon, como leer un cruce raro o como usar Street View para practicar sin perderte.",
+        source: "Guia de uso del asistente",
+        section: "Alcance",
       },
     ],
   };
