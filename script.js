@@ -488,14 +488,52 @@ function isGeneralRoadRuleQuestion(questionText) {
   ].some((term) => questionText.includes(term));
 }
 
+function getLocalAssistantAnswerMode(questionText) {
+  const contenedoraSignals = [
+    "nunca use",
+    "explicame",
+    "explicamelo",
+    "estoy nerv",
+    "me da miedo",
+    "no entiendo",
+    "como hago",
+    "como uso",
+    "street view",
+    "que hago primero",
+    "apenas me siento",
+  ];
+
+  const compactaSignals = [
+    "cuanto",
+    "quien tiene prioridad",
+    "tengo que",
+    "pare",
+    "ceda",
+    "semaforo",
+  ];
+
+  if (contenedoraSignals.some((term) => questionText.includes(term))) {
+    return "contenedora";
+  }
+
+  if (compactaSignals.some((term) => questionText.includes(term)) || questionText.split(" ").length <= 10) {
+    return "corta-y-filosa";
+  }
+
+  return "equilibrada";
+}
+
 function buildAssistantAnswer(question, stepContext) {
   const normalizedQuestion = normalizeAssistantText(question);
   const matches = getAssistantMatches(question, stepContext);
+  const mode = getLocalAssistantAnswerMode(normalizedQuestion);
 
   if (!matches.length) {
     return {
       text:
-        "No lo puedo afirmar con seguridad solo con el material que tengo cargado ahora. Si queres, reformulalo mas concreto o despues le cargamos mas fragmentos del manual oficial.",
+        mode === "contenedora"
+          ? "Con lo que tengo cargado ahora no te lo puedo afirmar bien sin inventarte. Si queres, decimelo mas concreto o despues le sumamos mas material y lo afinamos un poco mejor."
+          : "No te lo puedo afirmar con seguridad solo con el material que tengo cargado ahora. Si queres, reformulalo mas concreto.",
       sources: ["Base local del asistente"],
     };
   }
@@ -505,7 +543,9 @@ function buildAssistantAnswer(question, stepContext) {
     if (bikeMatch) {
       return {
         text:
-          "Con una bici o un ciclista, la idea es pasar con distancia lateral segura, sin encerrar ni apurar. En esta V1 local no tengo cargada una medida oficial exacta para decirte un numero con seguridad, asi que prefiero no inventarlo.",
+          mode === "contenedora"
+            ? "Con una bici, pensalo facil: no la encierres ni la apures, y deja aire de sobra al pasar. En esta base local no tengo cargada una medida oficial exacta para darte un numero con seguridad, asi que prefiero no chamuyartelo. Si no te da el ancho para pasar comodo, espera un poco y listo."
+            : "Con una bici, deja distancia lateral segura y no la encierres. En esta base local no tengo una medida oficial exacta cargada, asi que prefiero no inventarte un numero.",
         sources: [`${bikeMatch.document.source} · ${bikeMatch.document.section}`],
       };
     }
@@ -530,8 +570,16 @@ function buildAssistantAnswer(question, stepContext) {
       ? `\n\nComo respaldo, tambien aplica esto: ${secondaryMatch.document.content}`
       : "";
 
+  const baseText = `${intro}${currentStepHint}${support}`;
+  const text =
+    mode === "contenedora"
+      ? `${baseText}\n\nSi queres, lo bajamos a tierra paso a paso y lo pensamos como si estuvieras sentado en el auto.`
+      : mode === "corta-y-filosa"
+        ? `${baseText}\n\nClave: no te apures al pedo.`
+        : `${baseText}\n\nSi queres, lo afinamos con el detalle puntual que te esta trabando.`;
+
   return {
-    text: `${intro}${currentStepHint}${support}`,
+    text,
     sources: matches.map((match) => `${match.document.source} · ${match.document.section}`),
   };
 }

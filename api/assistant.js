@@ -128,13 +128,56 @@ function selectKnowledge(question, context) {
     .map((match) => match.document);
 }
 
+function detectAnswerMode(question) {
+  const normalized = normalizeText(question);
+  const contenedoraSignals = [
+    "nunca use",
+    "explicame",
+    "explicamelo",
+    "soy un desastre",
+    "estoy nervioso",
+    "estoy nerviosa",
+    "me da miedo",
+    "no entiendo",
+    "como hago",
+    "como uso",
+    "me perdi",
+    "street view",
+    "apenas me siento",
+    "que hago primero",
+  ];
+
+  const compactaSignals = [
+    "cuanto",
+    "quien tiene prioridad",
+    "tengo que",
+    "es obligatorio",
+    "puedo",
+    "pare",
+    "ceda",
+    "semaforo",
+  ];
+
+  if (contenedoraSignals.some((signal) => normalized.includes(signal))) {
+    return "contenedora";
+  }
+
+  if (compactaSignals.some((signal) => normalized.includes(signal)) || normalized.split(" ").length <= 10) {
+    return "corta-y-filosa";
+  }
+
+  return "equilibrada";
+}
+
 function buildSystemPrompt(question, context, selectedDocs) {
+  const answerMode = detectAnswerMode(question);
   const contextBlock = [
     `Circuito: ${context.circuitTitle ?? "No informado"}`,
     `Tramo: ${context.stepTitle ?? "No informado"}`,
     `Instruccion actual: ${context.stepPrompt ?? "No informada"}`,
     `Modo: ${context.mode ?? "study"}`,
     `Pregunta del usuario: ${question}`,
+    `Modo de respuesta sugerido: ${answerMode}`,
   ].join("\n");
 
   const sourcesBlock = selectedDocs
@@ -159,6 +202,9 @@ Instrucciones finales:
 - Si la pregunta es general, no fuerces el contexto del tramo.
 - No cites leyes ni numeros que no esten en las fuentes.
 - Si una fuente del manual incluye pagina, podes mencionarla como referencia util.
+- Si el modo sugerido es "contenedora", explica un poco mas paso a paso, baja ansiedad y usa un tono mas companero.
+- Si el modo sugerido es "corta-y-filosa", anda mas directo al punto, con claridad y una ultima linea util.
+- Si el modo sugerido es "equilibrada", mezcla calidez con precision sin alargarte de mas.
 - Termina con una indicacion util o una aclaracion prudente.`;
 }
 
