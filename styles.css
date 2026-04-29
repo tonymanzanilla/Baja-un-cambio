@@ -530,6 +530,12 @@ button:hover {
   gap: 18px;
 }
 
+.circuit-selector-panel {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 16px;
+}
+
 .map-panel {
   grid-area: map;
   display: grid;
@@ -2035,6 +2041,10 @@ button:hover {
   gap: 22px;
 }
 
+.seo-panel-standalone {
+  margin-top: 22px;
+}
+
 .seo-guide-drawer {
   background: rgba(255, 252, 245, 0.88);
 }
@@ -2377,10 +2387,19 @@ button:hover {
     padding-bottom: 140px;
   }
 
+  .circuit-selector-panel {
+    gap: 14px;
+  }
+
+  .circuit-selector-panel .panel-heading h2 {
+    font-size: 1.36rem;
+    line-height: 0.98;
+  }
+
   .mobile-practice-switch {
     position: fixed;
     left: 14px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
     z-index: 58;
     display: inline-grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2516,7 +2535,7 @@ button:hover {
   .assistant-toggle {
     right: 14px;
     left: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 94px);
     width: min(56vw, 220px);
     min-width: 0;
     padding: 10px 13px;
@@ -2590,6 +2609,10 @@ button:hover {
 
   .seo-panel {
     gap: 16px;
+  }
+
+  .seo-panel-standalone {
+    margin-top: 18px;
   }
 
   .seo-panel .panel-heading h2 {
