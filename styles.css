@@ -649,7 +649,7 @@ button:hover {
   z-index: 70;
   width: min(420px, calc(100vw - 24px));
   display: grid;
-  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   gap: 14px;
   padding: 20px;
   border: 1px solid var(--line);
@@ -657,6 +657,7 @@ button:hover {
   background: rgba(247, 240, 227, 0.96);
   box-shadow: 0 26px 60px rgba(16, 13, 11, 0.24);
   backdrop-filter: blur(22px);
+  overflow: hidden;
   transform: translateX(calc(100% + 24px));
   opacity: 0;
   pointer-events: none;
@@ -704,7 +705,19 @@ button:hover {
   gap: 10px;
 }
 
-.assistant-meta-pill,
+.assistant-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .assistant-messages {
   min-height: 0;
   overflow: auto;
@@ -712,6 +725,7 @@ button:hover {
   align-content: start;
   gap: 12px;
   padding-right: 4px;
+  padding-bottom: 8px;
 }
 
 .assistant-message {
@@ -755,6 +769,9 @@ button:hover {
 .assistant-form {
   display: grid;
   gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  background: rgba(247, 240, 227, 0.98);
 }
 
 .assistant-field {
@@ -2346,7 +2363,7 @@ button:hover {
     right: 10px;
     bottom: 10px;
     width: auto;
-    max-height: min(78svh, 760px);
+    max-height: min(86svh, 760px);
     border-radius: 24px;
     padding: 16px;
   }
