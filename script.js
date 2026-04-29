@@ -1,7 +1,6 @@
 const circuits = window.DRIVING_CIRCUITS ?? [];
 const currentUrlParams = new URLSearchParams(window.location.search);
 const requestedCircuitId = currentUrlParams.get("circuit");
-const hasExplicitRequestedCircuit = circuits.some((circuit) => circuit.id === requestedCircuitId);
 const activeCircuit =
   circuits.find((circuit) => circuit.id === requestedCircuitId) ??
   circuits.find((circuit) => circuit.id === "aca-libertador-a") ??
@@ -104,7 +103,7 @@ const state = {
   reachedCurrentCheckpoint: false,
   lastDistanceToCheckpoint: null,
   assistantOpen: false,
-  mobilePracticeView: hasExplicitRequestedCircuit ? "experience" : "map",
+  mobilePracticeView: "experience",
 };
 
 const streetViewState = {
