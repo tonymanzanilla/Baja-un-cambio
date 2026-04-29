@@ -2040,6 +2040,39 @@ button:hover {
   background: rgba(255, 248, 232, 0.82);
 }
 
+.seo-links {
+  display: grid;
+  gap: 12px;
+}
+
+.seo-link-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.seo-link-grid a {
+  display: block;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 248, 232, 0.82);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  line-height: 1.35;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease;
+}
+
+.seo-link-grid a:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+  box-shadow: 0 14px 28px rgba(24, 18, 14, 0.08);
+}
+
 .route-card .card-label,
 .route-card strong,
 .route-card p {
