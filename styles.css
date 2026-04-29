@@ -2035,6 +2035,15 @@ button:hover {
   gap: 22px;
 }
 
+.seo-guide-drawer {
+  background: rgba(255, 252, 245, 0.88);
+}
+
+.seo-guide-drawer summary {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+}
+
 .seo-copy {
   display: grid;
   gap: 14px;
@@ -2364,6 +2373,10 @@ button:hover {
     min-height: 560px;
   }
 
+  .dashboard {
+    padding-bottom: 140px;
+  }
+
   .mobile-practice-switch {
     position: fixed;
     left: 14px;
@@ -2503,16 +2516,21 @@ button:hover {
   .assistant-toggle {
     right: 14px;
     left: auto;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
-    width: min(78vw, 286px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
+    width: min(56vw, 220px);
     min-width: 0;
-    padding: 12px 15px;
+    padding: 10px 13px;
     border-radius: 20px;
     gap: 2px;
   }
 
   .assistant-toggle strong {
-    font-size: 0.92rem;
+    font-size: 0.84rem;
+  }
+
+  .assistant-toggle-badge {
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
   }
 
   .assistant-panel {
@@ -2568,5 +2586,23 @@ button:hover {
   .assistant-form-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .seo-panel {
+    gap: 16px;
+  }
+
+  .seo-panel .panel-heading h2 {
+    font-size: 1.78rem;
+    line-height: 0.94;
+  }
+
+  .seo-copy {
+    gap: 12px;
+  }
+
+  .seo-copy p {
+    font-size: 0.98rem;
+    line-height: 1.58;
   }
 }
