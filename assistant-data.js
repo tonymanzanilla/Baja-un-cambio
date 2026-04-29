@@ -13,6 +13,8 @@
       "Podes explicar tanto reglas viales como la logica de la app, el uso de Street View y pequeños detalles practicos del examen.",
       "Si la persona suena novata, responde paso a paso, sin tecnicismos innecesarios y con calma.",
       "Tambien podes orientar sobre modales y preparacion del examen: saludar, sentarse tranquilo, ponerse el cinto, acomodarse, prender luces si corresponde y mostrar una actitud prolija sin sobreactuar.",
+      "Cuando la pregunta sea sobre clima humano del examen, actitud del instructor o pequenos detalles sociales, podes responder con sentido comun y escenarios plausibles, siempre dejando claro que puede variar segun la persona que tome el examen.",
+      "Si no hay una regla oficial para algo social o de trato, no hace falta responder como manual: podes ser practico, tranquilizador y orientado a bajar nervios.",
       "Usa solamente el contexto y las fuentes que te pasan en cada request.",
       "Si la informacion no alcanza para afirmar algo con seguridad, decilo explicitamente.",
       "No des numeros, multas o reglas exactas si no aparecen en las fuentes.",
@@ -71,6 +73,36 @@
           "En el practico ayuda mucho una actitud calma, prolija y respetuosa. Saludar, escuchar la instruccion completa, no apurarte, ponerte el cinturon enseguida y mostrar chequeos basicos transmite seguridad. No hace falta sobreactuar ni hacer movimientos raros: alcanza con ser ordenado y visible en lo importante.",
         source: "Guia de examen practico",
         section: "Actitud durante la evaluacion",
+      },
+      {
+        id: "real-experience-friendly-instructor",
+        title: "Escenario real con instructor buena onda",
+        topic: "Experiencia del examen",
+        keywords: ["instructor", "buena onda", "saludo", "nervioso", "cinto", "llave", "luces bajas", "espejo", "escuchar", "20", "30", "velocidad", "relato", "experiencia"],
+        content:
+          "En un escenario real contado por un alumno, el instructor saludo buena onda desde el principio, pregunto si estaba listo y lo ayudo a bajar nervios. Ya dentro del auto, quedo bien visto ponerse el cinturon primero, poner la llave, arrancar sin miedo, prender luces bajas, acomodar el espejo y escuchar atento las instrucciones. Tambien le remarcaron circular mas o menos entre 20 y 30 en calles normales: ni apurado ni excesivamente lento.",
+        source: "Experiencia real de alumno",
+        section: "Inicio del examen y tono del instructor",
+      },
+      {
+        id: "serious-or-cold-instructor",
+        title: "Si el instructor es serio o cortante",
+        topic: "Experiencia del examen",
+        keywords: ["serio", "mala onda", "cortante", "instructor", "frio", "seca", "trato", "escenario"],
+        content:
+          "Si el instructor es serio, seco o poco simpatico, no significa necesariamente que te este yendo mal. En ese caso conviene hacer la tuya con calma: escuchar bien, no buscar aprobacion emocional todo el tiempo, responder breve si hace falta y mostrar orden en lo basico. La mejor impresion suele venir de una actitud tranquila y prolija, no de querer caer simpatico.",
+        source: "Guia practica de acompanamiento",
+        section: "Escenarios humanos posibles",
+      },
+      {
+        id: "start-sequence-simple",
+        title: "Secuencia simple para arrancar prolijo",
+        topic: "Examen practico",
+        keywords: ["secuencia", "arrancar", "cinto", "espejo", "luces", "saludar", "auto", "sentarse"],
+        content:
+          "Una secuencia simple y prolija para arrancar puede ser: saludar, sentarte sin apuro, acomodarte, ponerte el cinturon, revisar espejo, escuchar la consigna, encender el auto y resolver luces o controles basicos si corresponde. No hace falta actuar de mas: lo importante es que se note que estas atento y ordenado.",
+        source: "Guia practica de acompanamiento",
+        section: "Rutina inicial sugerida",
       },
       {
         id: "lights-and-basics",
