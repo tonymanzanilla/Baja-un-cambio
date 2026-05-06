@@ -449,6 +449,7 @@ body.seo-page--autoescuelas {
 
 .proposal-proof-card,
 .proposal-band,
+.proposal-ai-card,
 .proposal-steps-panel,
 .proposal-benefits-panel,
 .proposal-contrast-card,
@@ -595,6 +596,38 @@ body.seo-page--autoescuelas {
   border: 1px solid rgba(26, 20, 16, 0.06);
 }
 
+.proposal-ai-card {
+  display: grid;
+  gap: 20px;
+  padding: 34px 32px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 231, 186, 0.45), transparent 24%),
+    linear-gradient(180deg, rgba(255, 252, 245, 0.96), rgba(252, 248, 239, 0.94));
+}
+
+.proposal-ai-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.proposal-ai-grid article {
+  padding: 22px 20px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(26, 20, 16, 0.07);
+}
+
+.proposal-ai-grid strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.proposal-ai-grid span {
+  color: #4a6778;
+  line-height: 1.65;
+}
+
 .proposal-steps-panel,
 .proposal-benefits-panel {
   padding: 32px;
@@ -732,6 +765,7 @@ body.seo-page--autoescuelas {
 @media (max-width: 640px) {
   .proposal-proof-card,
   .proposal-band,
+  .proposal-ai-card,
   .proposal-steps-panel,
   .proposal-benefits-panel,
   .proposal-contrast-card,
@@ -742,6 +776,7 @@ body.seo-page--autoescuelas {
 
   .proposal-proof-card,
   .proposal-band,
+  .proposal-ai-card,
   .proposal-steps-panel,
   .proposal-benefits-panel,
   .proposal-contrast-card,
