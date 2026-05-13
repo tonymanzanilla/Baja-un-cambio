@@ -408,6 +408,14 @@ function isMobileTapControlSurface() {
   return window.matchMedia("(pointer: coarse) and (max-height: 620px) and (orientation: landscape)").matches;
 }
 
+function getResponsiveStreetViewPitch(step) {
+  const basePitch = step.streetView.pitch ?? 0;
+  if (isMobileTapControlSurface()) {
+    return Math.max(-18, basePitch - 7);
+  }
+  return basePitch;
+}
+
 function handleViewportPointerDown(event) {
   if (!isMobileTapControlSurface() || event.pointerType === "mouse") {
     return;
@@ -1034,7 +1042,9 @@ function renderAssistantMeta() {
 }
 
 function isMobilePracticeLayout() {
-  return window.matchMedia("(max-width: 720px)").matches;
+  return window.matchMedia(
+    "(max-width: 920px) and (orientation: portrait), (max-width: 1100px) and (max-height: 620px) and (orientation: landscape)"
+  ).matches;
 }
 
 function syncMobilePracticeView() {
@@ -1054,6 +1064,8 @@ function syncMobilePracticeView() {
 function setMobilePracticeView(nextView) {
   state.mobilePracticeView = nextView === "map" ? "map" : "experience";
   syncMobilePracticeView();
+  syncGpsMapSlot();
+  renderMap();
 }
 
 function syncAssistantPanel() {
@@ -1756,7 +1768,7 @@ function applyPanorama(step, panoData) {
   }
   panorama.setPov({
     heading: step.streetView.heading,
-    pitch: step.streetView.pitch,
+    pitch: getResponsiveStreetViewPitch(step),
   });
   panorama.setZoom(step.streetView.zoom ?? 1);
   setViewportLive(true);
