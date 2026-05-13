@@ -127,6 +127,7 @@
     document.body.classList.add("app-open");
     document.body.classList.remove("app-closed");
     updateViewParam(mode);
+    window.dispatchEvent(new CustomEvent("b2c:app-mode-change", { detail: { mode } }));
 
     elements.showPracticeButton?.classList.toggle("active", isPractice);
     elements.showTheoryButton?.classList.toggle("active", !isPractice);

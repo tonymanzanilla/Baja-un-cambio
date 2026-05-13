@@ -31,7 +31,7 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260428f" />
+    <link rel="stylesheet" href="./styles.css?v=20260513d" />
   </head>
   <body class="app-closed">
     <div class="noise"></div>
@@ -40,7 +40,7 @@
         <iframe
           id="homeFrame"
           class="home-frame"
-          src="./home-exact.html?v=20260428f"
+          src="./home-exact.html?v=20260513e"
           title="Bajá un cambio"
           loading="eager"
         ></iframe>
@@ -107,8 +107,8 @@
             <p class="section-label">Recorrido virtual</p>
             <h2>Practicá el circuito antes de ir</h2>
             <p>
-              Elegí tu sede, abrí el mapa y movete con el mouse en Street View. Hacé
-              click sobre la calle en la dirección que quieras seguir.
+              Elegí tu sede y avanzá por checkpoints del recorrido real. La vista se acomoda
+              sola para que practiques el circuito sin pelearte con Street View.
             </p>
           </div>
           <a class="section-back-link" href="#mainMenu">Volver al menú</a>
@@ -222,7 +222,7 @@
           <div class="viewer-status-row">
             <div class="viewer-badge" id="viewerModeBadge">Modo demo</div>
             <p id="viewerStatusText">
-              Mové la vista con el mouse y hacé click sobre la calle para avanzar por el recorrido.
+              Usá las flechas para ir al checkpoint anterior o siguiente. Street View queda como referencia real del circuito.
             </p>
           </div>
 
@@ -264,19 +264,45 @@
               <div class="road-lane road-lane-left"></div>
               <div class="road-lane road-lane-right"></div>
             </div>
+
+            <img
+              class="sunglasses-filter"
+              src="./assets/sunglasses-filter.png?v=20260513d"
+              alt=""
+              aria-hidden="true"
+            />
+
+            <img
+              class="cockpit-frame"
+              src="./assets/car-cockpit-ux.png?v=20260513d"
+              alt=""
+              aria-hidden="true"
+            />
+
+            <div class="turn-signal-dashboard" aria-hidden="true">
+              <span class="turn-signal-light left" id="leftSignalIndicator">←</span>
+              <span class="turn-signal-light right" id="rightSignalIndicator">→</span>
+            </div>
+
+            <div class="gps-map-slot" aria-label="Mapa del recorrido integrado al GPS">
+              <div
+                id="routeMapCanvas"
+                role="img"
+                aria-label="Mapa interactivo del recorrido oficial ACA Libertador"
+              ></div>
+            </div>
           </div>
 
-          <div class="viewer-footer" aria-hidden="true">
+          <div class="viewer-footer">
             <button class="ghost-button" id="backStepButton" type="button">
-              Reposicionar atras
+              Checkpoint anterior
             </button>
             <div class="drive-controls" aria-label="Controles de manejo">
-              <button class="drive-button" id="turnLeftButton" type="button">← Izquierda</button>
-              <button class="drive-button drive-button-primary" id="driveForwardButton" type="button">↑ Avanzar</button>
-              <button class="drive-button" id="turnRightButton" type="button">Derecha →</button>
+              <button class="drive-button" id="turnLeftButton" type="button">← Atrás</button>
+              <button class="drive-button" id="turnRightButton" type="button">Adelante →</button>
             </div>
             <button class="primary-button" id="nextStepButton" type="button">
-              Saltar checkpoint
+              Siguiente checkpoint
             </button>
           </div>
 
@@ -310,11 +336,7 @@
             <h2 id="mapPanelTitle">Ruta ACA Libertador</h2>
           </div>
 
-          <div
-            id="routeMapCanvas"
-            role="img"
-            aria-label="Mapa interactivo del recorrido oficial ACA Libertador"
-          ></div>
+          <div class="map-panel-placeholder" aria-hidden="true"></div>
 
           <div class="legend">
             <div><span class="legend-dot active-dot"></span> Tramo actual</div>
@@ -589,6 +611,26 @@
           </div>
         </form>
       </aside>
+
+      <div class="onboarding-modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" hidden>
+        <div class="onboarding-card">
+          <p class="section-label">Antes de arrancar</p>
+          <h2 id="onboardingTitle">Practicá el recorrido real</h2>
+          <p>
+            Mirá 360° con el mouse o el dedo. Si te trabás, el <strong>Instructor IA</strong>
+            está abajo a la derecha para preguntarle.
+          </p>
+          <div class="onboarding-command-grid" aria-label="Comandos del simulador">
+            <span><kbd>↑</kbd> Avanzar</span>
+            <span><kbd>↓</kbd> Retroceder</span>
+            <span><kbd>←</kbd> Guiño izquierdo</span>
+            <span><kbd>→</kbd> Guiño derecho</span>
+            <span><kbd>B</kbd> Balizas</span>
+            <span><kbd>G</kbd> Gafas de sol</span>
+          </div>
+          <button class="primary-button" id="onboardingOkButton" type="button">Ok, manejar</button>
+        </div>
+      </div>
       </div>
     </div>
 
@@ -608,8 +650,8 @@
     <script src="./circuits/palermo-comuna14.js?v=20260428f"></script>
     <script src="./circuits/chacarita-comuna15.js?v=20260428f"></script>
     <script src="./assistant-data.js?v=20260429a"></script>
-    <script src="./script.js?v=20260429a"></script>
+    <script src="./script.js?v=20260513d"></script>
     <script src="./theory-data.js?v=20260428f"></script>
-    <script src="./theory.js?v=20260428f"></script>
+    <script src="./theory.js?v=20260513d"></script>
   </body>
 </html>

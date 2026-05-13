@@ -1,6 +1,7 @@
 const circuits = window.DRIVING_CIRCUITS ?? [];
 const currentUrlParams = new URLSearchParams(window.location.search);
 const requestedCircuitId = currentUrlParams.get("circuit");
+const onboardingStorageKey = "b2c-onboarding-seen-v2";
 const activeCircuit =
   circuits.find((circuit) => circuit.id === requestedCircuitId) ??
   circuits.find((circuit) => circuit.id === "aca-libertador-a") ??
@@ -10,7 +11,178 @@ if (!activeCircuit) {
   throw new Error("No hay circuitos cargados. Revisá los scripts de /circuits.");
 }
 
-const routeSteps = activeCircuit.routeSteps;
+const mapRoutePoints = activeCircuit.mapRoutePoints;
+const progressIndexByStep = activeCircuit.progressIndexByStep;
+const routeSteps = buildPlayableRouteSteps(
+  activeCircuit.routeSteps,
+  mapRoutePoints,
+  progressIndexByStep
+);
+
+function buildPlayableRouteSteps(baseSteps, routePoints, progressByStep) {
+  if (!Array.isArray(routePoints) || routePoints.length < 2) {
+    return baseSteps;
+  }
+
+  const targetSpacingMeters = 44;
+  const requiredStepsByRouteIndex = new Map();
+  baseSteps.forEach((step) => {
+    const routeIndex = Math.max(0, (progressByStep[step.id] ?? 1) - 1);
+    const guidedHeading = getGuidedHeadingForRouteIndex(routePoints, routeIndex, step.correctAction);
+    requiredStepsByRouteIndex.set(routeIndex, {
+      ...step,
+      streetView: {
+        ...step.streetView,
+        heading: guidedHeading,
+      },
+      routeProgressIndex: routeIndex + 1,
+      routePointIndex: routeIndex,
+    });
+  });
+
+  const playableSteps = [];
+  const usedIds = new Set();
+  const addStep = (step) => {
+    if (usedIds.has(step.id)) {
+      return;
+    }
+    usedIds.add(step.id);
+    playableSteps.push(step);
+  };
+
+  routePoints.forEach((point, index) => {
+    const requiredStep = requiredStepsByRouteIndex.get(index);
+    if (requiredStep) {
+      addStep(requiredStep);
+    } else if (index > 0) {
+      addStep(createCruiseCheckpoint(routePoints, index, 0));
+    }
+
+    const nextPoint = routePoints[index + 1];
+    if (!nextPoint) {
+      return;
+    }
+
+    const segmentDistance = distanceInMeters(point, nextPoint);
+    const extraStops = Math.max(0, Math.floor(segmentDistance / targetSpacingMeters));
+    for (let stop = 1; stop <= extraStops; stop += 1) {
+      const fraction = stop / (extraStops + 1);
+      addStep(createCruiseCheckpoint(routePoints, index, fraction));
+    }
+  });
+
+  const lastBaseStep = baseSteps[baseSteps.length - 1];
+  if (!usedIds.has(lastBaseStep.id)) {
+    addStep({
+      ...lastBaseStep,
+      routeProgressIndex: routePoints.length,
+      routePointIndex: routePoints.length - 1,
+    });
+  }
+
+  return playableSteps;
+}
+
+function createCruiseCheckpoint(routePoints, index, fraction) {
+  const currentPoint = routePoints[index];
+  const nextPoint = routePoints[index + 1] ?? routePoints[index];
+  const previousPoint = routePoints[index - 1] ?? currentPoint;
+  const point = fraction > 0
+    ? interpolatePoint(currentPoint, nextPoint, fraction)
+    : currentPoint;
+  const headingTarget = fraction > 0 ? nextPoint : nextPoint ?? previousPoint;
+  const routeProgressIndex = index + 1;
+  const idSuffix = fraction > 0 ? `${index + 1}-${Math.round(fraction * 100)}` : `${index + 1}`;
+
+  return {
+    id: `cruise-${idSuffix}`,
+    segment: "Tramo guiado",
+    title: "Seguí el recorrido",
+    kicker: "Checkpoint",
+    description:
+      "Punto intermedio para reconocer la cuadra real sin depender del avance nativo de Street View.",
+    progressLabel: "Checkpoint intermedio",
+    prompt: "Avanzá hasta el próximo hito del recorrido.",
+    correctAction: "straight",
+    speedHint: "20 km/h",
+    trigger: point,
+    streetView: {
+      ...point,
+      heading: getHeadingBetweenPoints(point, headingTarget),
+      pitch: -2,
+      zoom: 1,
+    },
+    cue: {
+      farTitle: "Seguí derecho",
+      farText: "Reconocé la cuadra y avanzá al próximo checkpoint.",
+      nearTitle: "Seguí derecho",
+      nearText: "Este checkpoint es para no perder continuidad visual.",
+    },
+    alerts: [
+      {
+        type: "note",
+        title: "Reconocimiento",
+        body: "Usá la vista 360 para ubicar referencias: esquinas, senda, carteles y carriles.",
+      },
+    ],
+    mapPoint: point,
+    routeProgressIndex,
+    routePointIndex: index,
+  };
+}
+
+function interpolatePoint(from, to, fraction) {
+  return {
+    lat: from.lat + (to.lat - from.lat) * fraction,
+    lng: from.lng + (to.lng - from.lng) * fraction,
+  };
+}
+
+function getHeadingBetweenPoints(from, to) {
+  const fromLat = toRadians(from.lat);
+  const toLat = toRadians(to.lat);
+  const deltaLng = toRadians(to.lng - from.lng);
+  const y = Math.sin(deltaLng) * Math.cos(toLat);
+  const x =
+    Math.cos(fromLat) * Math.sin(toLat) -
+    Math.sin(fromLat) * Math.cos(toLat) * Math.cos(deltaLng);
+  return Math.round(normalizeHeading((Math.atan2(y, x) * 180) / Math.PI));
+}
+
+function blendHeadings(fromHeading, toHeading, weight = 0.5) {
+  const start = normalizeHeading(fromHeading);
+  const end = normalizeHeading(toHeading);
+  const delta = ((end - start + 540) % 360) - 180;
+  return Math.round(normalizeHeading(start + delta * weight));
+}
+
+function getGuidedHeadingForRouteIndex(routePoints, index, action) {
+  const currentPoint = routePoints[index];
+  const previousPoint = routePoints[Math.max(0, index - 1)] ?? currentPoint;
+  const nextPoint = routePoints[Math.min(routePoints.length - 1, index + 1)] ?? currentPoint;
+
+  if (!currentPoint || !nextPoint) {
+    return 0;
+  }
+
+  const incomingHeading = getHeadingBetweenPoints(previousPoint, currentPoint);
+  const outgoingHeading = getHeadingBetweenPoints(currentPoint, nextPoint);
+
+  if (index === 0) {
+    return outgoingHeading;
+  }
+
+  if (index >= routePoints.length - 1) {
+    return incomingHeading;
+  }
+
+  if (action === "left" || action === "right") {
+    return blendHeadings(incomingHeading, outgoingHeading, 0.58);
+  }
+
+  return outgoingHeading;
+}
+
 function getCircuitCardSubtitle(circuit) {
   const summary = typeof circuit.routeSummary === "string" ? circuit.routeSummary.trim() : "";
   if (summary) {
@@ -27,8 +199,6 @@ const availableCircuits = circuits.map((circuit) => ({
 }));
 const contextualMessages = activeCircuit.contextualMessages;
 const mapContextRules = activeCircuit.mapContextRules;
-const mapRoutePoints = activeCircuit.mapRoutePoints;
-const progressIndexByStep = activeCircuit.progressIndexByStep;
 
 const config = window.APP_CONFIG ?? {};
 const assistantData = window.DRIVING_ASSISTANT_DATA ?? { starterPrompts: [], knowledgeBase: [] };
@@ -53,6 +223,7 @@ const elements = {
   speedHint: document.querySelector("#speedHint"),
   microTip: document.querySelector("#microTip"),
   routeMapCanvas: document.querySelector("#routeMapCanvas"),
+  gpsMapSlot: document.querySelector(".gps-map-slot"),
   mapPanelTitle: document.querySelector("#mapPanelTitle"),
   nextStepButton: document.querySelector("#nextStepButton"),
   backStepButton: document.querySelector("#backStepButton"),
@@ -73,6 +244,10 @@ const elements = {
   turnLeftButton: document.querySelector("#turnLeftButton"),
   driveForwardButton: document.querySelector("#driveForwardButton"),
   turnRightButton: document.querySelector("#turnRightButton"),
+  leftSignalIndicator: document.querySelector("#leftSignalIndicator"),
+  rightSignalIndicator: document.querySelector("#rightSignalIndicator"),
+  onboardingModal: document.querySelector("#onboardingModal"),
+  onboardingOkButton: document.querySelector("#onboardingOkButton"),
   contextualList: document.querySelector("#contextualList"),
   mapContextCard: document.querySelector("#mapContextCard"),
   mapContextLabel: document.querySelector("#mapContextLabel"),
@@ -104,6 +279,11 @@ const state = {
   lastDistanceToCheckpoint: null,
   assistantOpen: false,
   mobilePracticeView: "experience",
+  turnSignal: null,
+  sunglassesOn: false,
+  turnSignalMisses: 0,
+  turnSignalHits: 0,
+  onboardingSeen: window.sessionStorage?.getItem(onboardingStorageKey) === "true",
 };
 
 const streetViewState = {
@@ -123,6 +303,18 @@ const mapState = {
   completedLine: null,
   currentMarker: null,
   nextMarker: null,
+  fittedRoute: false,
+};
+
+const cockpitAsset = {
+  width: 1309,
+  height: 743,
+  gpsScreen: {
+    x: 589,
+    y: 481,
+    width: 317,
+    height: 130,
+  },
 };
 
 const assistantState = {
@@ -171,11 +363,93 @@ function goToStep(index, options = {}) {
 }
 
 function nextStep() {
-  goToStep(state.currentStep + 1);
+  moveCheckpoint(1);
 }
 
 function previousStep() {
-  goToStep(state.currentStep - 1);
+  moveCheckpoint(-1);
+}
+
+function getRequiredTurnSignal(step) {
+  return step.correctAction === "left" || step.correctAction === "right"
+    ? step.correctAction
+    : null;
+}
+
+function syncTurnSignalIndicators() {
+  elements.leftSignalIndicator?.classList.toggle("active", state.turnSignal === "left");
+  elements.rightSignalIndicator?.classList.toggle("active", state.turnSignal === "right");
+  elements.leftSignalIndicator?.classList.toggle("hazard", state.turnSignal === "hazard");
+  elements.rightSignalIndicator?.classList.toggle("hazard", state.turnSignal === "hazard");
+}
+
+function setTurnSignal(direction) {
+  state.turnSignal = state.turnSignal === direction ? null : direction;
+  syncTurnSignalIndicators();
+}
+
+function clearTurnSignal() {
+  state.turnSignal = null;
+  syncTurnSignalIndicators();
+}
+
+function toggleSunglasses() {
+  state.sunglassesOn = !state.sunglassesOn;
+  elements.viewport?.classList.toggle("sunglasses-on", state.sunglassesOn);
+}
+
+function applyTurnSignalPenalty(step) {
+  const requiredSignal = getRequiredTurnSignal(step);
+  if (!requiredSignal) {
+    return;
+  }
+
+  if (state.turnSignal === requiredSignal || state.turnSignal === "hazard") {
+    state.turnSignalHits += 1;
+    clearTurnSignal();
+    return;
+  }
+
+  state.turnSignalMisses += 1;
+  state.score = Math.max(0, state.score - 6);
+  elements.scoreValue.textContent = String(state.score);
+  elements.decisionFeedback.textContent =
+    requiredSignal === "left"
+      ? "Te olvidaste el guiño izquierdo. -6 puntos."
+      : "Te olvidaste el guiño derecho. -6 puntos.";
+  clearTurnSignal();
+}
+
+function getTurnSignalSummary() {
+  const totalRequiredSignals = state.turnSignalHits + state.turnSignalMisses;
+  if (totalRequiredSignals === 0) {
+    return "Todavia no hubo giros con guiño obligatorio.";
+  }
+
+  if (state.turnSignalMisses === 0) {
+    return "Los pusiste siempre, muy bien crack.";
+  }
+
+  const countText = state.turnSignalMisses === 1 ? "1 vez" : `${state.turnSignalMisses} veces`;
+  return `Che capo, no pusiste el guiño ${countText}.`;
+}
+
+function moveCheckpoint(direction) {
+  holdForwardStop();
+  if (direction > 0) {
+    applyTurnSignalPenalty(routeSteps[state.currentStep]);
+  }
+  goToStep(state.currentStep + direction);
+}
+
+function getCheckpointInstruction(step) {
+  if (step.correctAction === "left") {
+    return "Giro a la izquierda";
+  }
+  if (step.correctAction === "right") {
+    return "Giro a la derecha";
+  }
+  return state.currentStep === routeSteps.length - 1 ? "Final del recorrido" : "Seguir derecho";
 }
 
 function getStepPoint(step) {
@@ -188,6 +462,29 @@ function getStepPoint(step) {
   }
 
   return { lat: step.streetView.lat, lng: step.streetView.lng };
+}
+
+function getNearestRoutePointIndex(point) {
+  if (!point || !Array.isArray(mapRoutePoints) || mapRoutePoints.length === 0) {
+    return null;
+  }
+
+  return mapRoutePoints.reduce((bestIndex, routePoint, index) => {
+    if (bestIndex === null) {
+      return index;
+    }
+
+    const bestDistance = distanceInMeters(point, mapRoutePoints[bestIndex]);
+    const candidateDistance = distanceInMeters(point, routePoint);
+    return candidateDistance < bestDistance ? index : bestIndex;
+  }, null);
+}
+
+function getContextRuleRouteIndexes(rule) {
+  return (rule.stepIds ?? [rule.stepId])
+    .map((stepId) => progressIndexByStep[stepId])
+    .filter((routeProgressIndex) => typeof routeProgressIndex === "number")
+    .map((routeProgressIndex) => Math.max(0, routeProgressIndex - 1));
 }
 
 function createSignalPill(alert) {
@@ -715,6 +1012,37 @@ function syncAssistantPanel() {
   elements.assistantToggleButton.setAttribute("aria-expanded", state.assistantOpen ? "true" : "false");
 }
 
+function syncGpsMapSlot() {
+  if (!elements.viewport || !elements.gpsMapSlot) {
+    return;
+  }
+
+  const viewportWidth = elements.viewport.clientWidth;
+  const viewportHeight = elements.viewport.clientHeight;
+  if (!viewportWidth || !viewportHeight) {
+    return;
+  }
+
+  const imageScale = Math.max(
+    viewportWidth / cockpitAsset.width,
+    viewportHeight / cockpitAsset.height
+  );
+  const renderedImageWidth = cockpitAsset.width * imageScale;
+  const renderedImageHeight = cockpitAsset.height * imageScale;
+  const imageOffsetX = (viewportWidth - renderedImageWidth) / 2;
+  const imageOffsetY = viewportHeight - renderedImageHeight;
+  const { gpsScreen } = cockpitAsset;
+
+  elements.gpsMapSlot.style.left = `${imageOffsetX + gpsScreen.x * imageScale}px`;
+  elements.gpsMapSlot.style.top = `${imageOffsetY + gpsScreen.y * imageScale}px`;
+  elements.gpsMapSlot.style.width = `${gpsScreen.width * imageScale}px`;
+  elements.gpsMapSlot.style.height = `${gpsScreen.height * imageScale}px`;
+
+  if (mapState.map && window.google?.maps?.event) {
+    google.maps.event.trigger(mapState.map, "resize");
+  }
+}
+
 function setAssistantOpen(nextValue) {
   state.assistantOpen = nextValue;
   syncAssistantPanel();
@@ -724,6 +1052,22 @@ function setAssistantOpen(nextValue) {
     window.setTimeout(() => {
       elements.assistantInput?.focus();
     }, 40);
+  }
+}
+
+function showOnboardingIfNeeded() {
+  if (!elements.onboardingModal || state.onboardingSeen || !document.body.classList.contains("app-open")) {
+    return;
+  }
+
+  elements.onboardingModal.hidden = false;
+}
+
+function dismissOnboarding() {
+  state.onboardingSeen = true;
+  window.sessionStorage?.setItem(onboardingStorageKey, "true");
+  if (elements.onboardingModal) {
+    elements.onboardingModal.hidden = true;
   }
 }
 
@@ -770,27 +1114,43 @@ function isEditableTarget(target) {
 }
 
 function getActiveMapContextRule() {
-  const currentLocation = getCurrentPanoramaLocation();
+  const currentStep = routeSteps[state.currentStep];
+  const currentLocation = getStepPoint(currentStep) ?? getCurrentPanoramaLocation();
   if (!currentLocation) {
     return null;
   }
 
-  const currentStepId = routeSteps[state.currentStep].id;
+  const currentStepId = currentStep.id;
+  const currentRouteIndex =
+    typeof currentStep.routePointIndex === "number"
+      ? currentStep.routePointIndex
+      : getNearestRoutePointIndex(currentLocation);
   const currentPano = streetViewState.panorama?.getPano();
   const matchingRules = mapContextRules
-    .filter((rule) => {
-      const eligibleStepIds = rule.stepIds ?? [rule.stepId];
-      return eligibleStepIds.includes(currentStepId);
+    .map((rule) => {
+      const ruleRouteIndexes = getContextRuleRouteIndexes(rule);
+      return {
+        rule,
+        ruleRouteIndexes,
+        routeIndexDistance:
+          currentRouteIndex === null || ruleRouteIndexes.length === 0
+            ? Number.POSITIVE_INFINITY
+            : Math.min(...ruleRouteIndexes.map((ruleRouteIndex) => Math.abs(currentRouteIndex - ruleRouteIndex))),
+        distance: distanceInMeters(currentLocation, rule.trigger),
+        panoMatches: Boolean(rule.pano && currentPano && rule.pano === currentPano),
+        stepMatches: (rule.stepIds ?? [rule.stepId]).includes(currentStepId),
+      };
     })
-    .map((rule) => ({
-      rule,
-      distance: distanceInMeters(currentLocation, rule.trigger),
-      panoMatches: Boolean(rule.pano && currentPano && rule.pano === currentPano),
-    }))
-    .filter((match) => match.distance <= match.rule.activationRadius)
+    .filter((match) => match.distance <= match.rule.activationRadius && match.routeIndexDistance <= 1)
     .sort((a, b) => {
       if (a.panoMatches !== b.panoMatches) {
         return a.panoMatches ? -1 : 1;
+      }
+      if (a.stepMatches !== b.stepMatches) {
+        return a.stepMatches ? -1 : 1;
+      }
+      if (a.routeIndexDistance !== b.routeIndexDistance) {
+        return a.routeIndexDistance - b.routeIndexDistance;
       }
       return a.distance - b.distance;
     });
@@ -814,6 +1174,63 @@ function renderMapContextCard() {
   elements.mapContextTitle.textContent = activeRule.title;
   elements.mapContextText.textContent = activeRule.text;
   elements.mapContextCard.hidden = false;
+}
+
+function renderViewportMessage(step = routeSteps[state.currentStep]) {
+  const activeRule = getActiveMapContextRule();
+  if (activeRule) {
+    elements.viewportKicker.textContent = activeRule.label;
+    elements.viewportTitle.textContent = activeRule.title;
+    elements.viewportDescription.textContent = activeRule.text;
+    return;
+  }
+
+  elements.viewportKicker.textContent = step.kicker;
+  elements.viewportTitle.textContent = step.title;
+  elements.viewportDescription.textContent = step.description;
+}
+
+function isAvenueSegment(step) {
+  const segment = normalizeAssistantText(step.segment);
+  return (
+    segment.includes("av ") ||
+    segment.includes("avenida") ||
+    segment.includes("alcorta") ||
+    segment.includes("scalabrini") ||
+    segment.includes("casares")
+  );
+}
+
+function getSuggestedSpeed(step) {
+  return isAvenueSegment(step) ? "30-35 km/h max." : "25-30 km/h";
+}
+
+function getSessionFeedback(step) {
+  if (state.currentStep === routeSteps.length - 1 || step.id === "finish") {
+    return `${getTurnSignalSummary()} Puntaje actual: ${state.score}.`;
+  }
+
+  return "Cada flecha te lleva a un checkpoint real del recorrido.";
+}
+
+function fitMiniMapToRoute(force = false) {
+  if (!mapState.map || !window.google?.maps || !Array.isArray(mapRoutePoints) || mapRoutePoints.length === 0) {
+    return;
+  }
+
+  if (mapState.fittedRoute && !force) {
+    return;
+  }
+
+  const bounds = new google.maps.LatLngBounds();
+  mapRoutePoints.forEach((point) => bounds.extend(point));
+  mapState.map.fitBounds(bounds, {
+    top: 18,
+    right: 46,
+    bottom: 24,
+    left: 18,
+  });
+  mapState.fittedRoute = true;
 }
 
 function renderMap() {
@@ -890,12 +1307,19 @@ function renderMap() {
   } else {
     mapState.nextMarker.setPosition(nextPosition);
   }
+
+  fitMiniMapToRoute();
 }
 
 function getCompletedPolylineIndex() {
   const completedStep = routeSteps[Math.max(0, state.currentStep - 1)];
   const completedStepId = completedStep?.id ?? "start";
-  return Math.max(1, progressIndexByStep[completedStepId] ?? 1);
+  const routeProgressIndex =
+    completedStep?.routeProgressIndex ??
+    (typeof completedStep?.routePointIndex === "number"
+      ? Math.floor(completedStep.routePointIndex) + 1
+      : progressIndexByStep[completedStepId]);
+  return Math.max(1, routeProgressIndex ?? 1);
 }
 
 function normalizeHeading(value) {
@@ -1023,8 +1447,7 @@ function hasPassedCurrentCheckpoint() {
 
 function renderRouteCue() {
   const step = routeSteps[state.currentStep];
-  const distance = getDistanceToCurrentCheckpoint();
-  const nearTurn = typeof distance === "number" && distance < 42;
+  const nearTurn = step.correctAction !== "straight";
   const arrowClass =
     step.correctAction === "left"
       ? "route-cue-arrow turn-left"
@@ -1035,9 +1458,12 @@ function renderRouteCue() {
   elements.routeCue.classList.toggle("near-turn", nearTurn);
   elements.routeCueArrow.className = arrowClass;
   elements.routeCueArrow.textContent = "↑";
-  elements.routeCueTitle.textContent = nearTurn ? step.cue.nearTitle : step.cue.farTitle;
-  elements.routeCueText.textContent = nearTurn ? step.cue.nearText : step.cue.farText;
-  elements.turnBadge.classList.toggle("visible", nearTurn && step.correctAction !== "straight");
+  elements.routeCueTitle.textContent = getCheckpointInstruction(step);
+  elements.routeCueText.textContent =
+    step.correctAction === "straight"
+      ? step.cue.farText || step.prompt
+      : step.cue.nearText || step.prompt;
+  elements.turnBadge.classList.toggle("visible", step.correctAction !== "straight");
   elements.turnBadge.textContent =
     step.correctAction === "left"
       ? "GIRO A LA IZQUIERDA"
@@ -1245,6 +1671,7 @@ function holdForwardStop() {
 function maybeAdvanceCheckpoint() {
   renderRouteCue();
   renderMap();
+  renderViewportMessage();
   renderMapContextCard();
 
   if (!streetViewState.panorama || state.currentStep >= routeSteps.length - 1) {
@@ -1281,6 +1708,7 @@ function applyPanorama(step, panoData) {
   setViewportLive(true);
   renderRouteCue();
   renderMap();
+  renderViewportMessage(step);
   renderMapContextCard();
 }
 
@@ -1302,11 +1730,7 @@ async function updateStreetViewForCurrentStep() {
     applyPanorama(step, data);
     setViewerStatus(
       "live",
-      `Street View activo en ${step.segment}. Hito resuelto desde ${
-        step.trigger
-          ? `${step.trigger.lat.toFixed(6)}, ${step.trigger.lng.toFixed(6)}`
-          : geocoded?.formattedAddress ?? step.address
-      }.`
+      `Checkpoint ${state.currentStep + 1} de ${routeSteps.length}: ${step.segment}. Usá ↑/→ para avanzar y ↓/← para volver.`
     );
   } catch (error) {
     try {
@@ -1315,7 +1739,7 @@ async function updateStreetViewForCurrentStep() {
         lng: step.streetView.lng,
       });
       applyPanorama(step, fallbackData);
-      setViewerStatus("error", `Use una aproximacion para ${step.segment}.`);
+      setViewerStatus("error", `Checkpoint aproximado en ${step.segment}. Revisá si la cámara quedó bien orientada.`);
     } catch (fallbackError) {
       setViewportLive(false);
       setViewerStatus("error", `No encontre panorama util para ${step.segment}.`);
@@ -1328,7 +1752,6 @@ function bindPanoramaGameplay() {
     return;
   }
 
-  streetViewState.panorama.addListener("position_changed", maybeAdvanceCheckpoint);
   streetViewState.panorama.addListener("pov_changed", renderRouteCue);
 }
 
@@ -1355,8 +1778,10 @@ async function initStreetView() {
       addressControl: false,
       showRoadLabels: true,
       fullscreenControl: false,
-      linksControl: true,
-      panControl: true,
+      linksControl: false,
+      panControl: false,
+      clickToGo: false,
+      scrollwheel: false,
       enableCloseButton: false,
       zoomControl: true,
       visible: true,
@@ -1384,7 +1809,7 @@ function initMiniMap() {
 
   mapState.map = new google.maps.Map(elements.routeMapCanvas, {
     center: activeCircuit.mapCenter ?? mapRoutePoints[0] ?? { lat: -34.5762, lng: -58.4072 },
-    zoom: activeCircuit.mapZoom ?? 17,
+    zoom: activeCircuit.mapZoom ?? 15,
     mapTypeId: "roadmap",
     streetViewControl: false,
     fullscreenControl: false,
@@ -1394,12 +1819,17 @@ function initMiniMap() {
   });
 
   renderMap();
+  window.setTimeout(() => fitMiniMapToRoute(true), 80);
 }
 
 function render() {
   const step = routeSteps[state.currentStep];
   const progress = ((state.currentStep + 1) / routeSteps.length) * 100;
 
+  elements.viewport.classList.remove("checkpoint-pulse");
+  window.requestAnimationFrame(() => {
+    elements.viewport.classList.add("checkpoint-pulse");
+  });
   elements.mapPanelTitle.textContent = activeCircuit.title;
   elements.calibrationStepLabel.textContent = step.id;
   elements.segmentName.textContent = step.segment;
@@ -1408,13 +1838,12 @@ function render() {
   elements.progressLabel.textContent = step.progressLabel;
   elements.progressFill.style.width = `${progress}%`;
   elements.decisionPrompt.textContent = step.prompt;
-  elements.decisionFeedback.textContent = "Cada mensaje ahora corresponde a un hito real de giro del circuito.";
-  elements.viewportKicker.textContent = step.kicker;
-  elements.viewportTitle.textContent = step.title;
-  elements.viewportDescription.textContent = step.description;
-  elements.speedHint.textContent = step.speedHint;
+  elements.decisionFeedback.textContent = getSessionFeedback(step);
+  renderViewportMessage(step);
+  elements.speedHint.textContent = getSuggestedSpeed(step);
   elements.microTip.textContent = buildMicroTip(step);
 
+  syncGpsMapSlot();
   renderSignals(step);
   renderContextualMessages();
   renderCircuitOptions();
@@ -1436,33 +1865,61 @@ elements.decisionButtons.forEach((button) => {
   button.addEventListener("click", () => handleDecision(button.dataset.action));
 });
 
-window.addEventListener("keydown", (event) => {
+function handleCheckpointKeydown(event) {
   if (isEditableTarget(event.target)) {
     return;
   }
 
-  if (["ArrowLeft", "ArrowRight", "ArrowUp", " "].includes(event.key)) {
+  const key = event.key.toLowerCase();
+  const isLeftSignalKey = event.key === "ArrowLeft";
+  const isRightSignalKey = event.key === "ArrowRight";
+  const isHazardKey = key === "b" || event.code === "KeyB";
+  const isSunglassesKey = key === "g" || event.code === "KeyG";
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " "].includes(event.key) || isHazardKey || isSunglassesKey) {
     event.preventDefault();
+    event.stopPropagation();
+  } else {
+    return;
   }
 
-  if (event.key === "ArrowLeft") {
-    stepPanorama("left");
+  if (event.repeat) {
+    return;
   }
 
-  if (event.key === "ArrowRight") {
-    stepPanorama("right");
+  if (isLeftSignalKey) {
+    setTurnSignal("left");
+    return;
+  }
+
+  if (isRightSignalKey) {
+    setTurnSignal("right");
+    return;
+  }
+
+  if (isHazardKey) {
+    setTurnSignal("hazard");
+    return;
+  }
+
+  if (isSunglassesKey) {
+    toggleSunglasses();
+    return;
+  }
+
+  if (event.key === "ArrowDown") {
+    moveCheckpoint(-1);
   }
 
   if (event.key === "ArrowUp") {
-    if (!event.repeat) {
-      holdForwardStart();
-    }
+    moveCheckpoint(1);
   }
 
   if (event.key === " ") {
-    nextStep();
+    moveCheckpoint(1);
   }
-});
+}
+
+document.addEventListener("keydown", handleCheckpointKeydown, true);
 
 window.addEventListener("keyup", (event) => {
   if (isEditableTarget(event.target)) {
@@ -1474,13 +1931,9 @@ window.addEventListener("keyup", (event) => {
   }
 });
 
-elements.turnLeftButton.addEventListener("click", () => stepPanorama("left"));
-elements.turnRightButton.addEventListener("click", () => stepPanorama("right"));
-elements.driveForwardButton.addEventListener("click", () => stepPanorama("forward"));
-elements.driveForwardButton.addEventListener("pointerdown", holdForwardStart);
-elements.driveForwardButton.addEventListener("pointerup", holdForwardStop);
-elements.driveForwardButton.addEventListener("pointerleave", holdForwardStop);
-elements.driveForwardButton.addEventListener("pointercancel", holdForwardStop);
+elements.turnLeftButton.addEventListener("click", () => moveCheckpoint(-1));
+elements.turnRightButton.addEventListener("click", () => moveCheckpoint(1));
+elements.driveForwardButton?.addEventListener("click", () => moveCheckpoint(1));
 elements.assistantToggleButton?.addEventListener("click", () => {
   setAssistantOpen(!state.assistantOpen);
 });
@@ -1494,10 +1947,30 @@ elements.mobileMapViewButton?.addEventListener("click", () => {
   setMobilePracticeView("map");
 });
 elements.assistantForm?.addEventListener("submit", handleAssistantSubmit);
-window.addEventListener("resize", syncMobilePracticeView);
+elements.onboardingOkButton?.addEventListener("click", dismissOnboarding);
+window.addEventListener("resize", () => {
+  syncMobilePracticeView();
+  syncGpsMapSlot();
+});
+window.addEventListener("b2c:app-mode-change", (event) => {
+  syncGpsMapSlot();
+  if (event.detail?.mode === "practice") {
+    window.setTimeout(showOnboardingIfNeeded, 80);
+  }
+});
+
+if ("ResizeObserver" in window && elements.viewport) {
+  const gpsSlotObserver = new ResizeObserver(syncGpsMapSlot);
+  gpsSlotObserver.observe(elements.viewport);
+}
 
 renderAssistantMessages();
 syncAssistantPanel();
 syncMobilePracticeView();
+syncTurnSignalIndicators();
+syncGpsMapSlot();
+window.setTimeout(syncGpsMapSlot, 80);
+window.setTimeout(syncGpsMapSlot, 360);
 render();
 initStreetView();
+window.setTimeout(showOnboardingIfNeeded, 120);
