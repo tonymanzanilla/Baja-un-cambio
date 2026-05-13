@@ -411,7 +411,7 @@ function isMobileTapControlSurface() {
 function getResponsiveStreetViewPitch(step) {
   const basePitch = step.streetView.pitch ?? 0;
   if (isMobileTapControlSurface()) {
-    return Math.max(-18, basePitch - 7);
+    return Math.max(-20, basePitch - 10);
   }
   return basePitch;
 }
@@ -1247,13 +1247,27 @@ function renderViewportMessage(step = routeSteps[state.currentStep]) {
   if (activeRule) {
     elements.viewportKicker.textContent = activeRule.label;
     elements.viewportTitle.textContent = activeRule.title;
-    elements.viewportDescription.textContent = activeRule.text;
+    elements.viewportDescription.textContent = getCompactViewportText(activeRule.text);
     return;
   }
 
   elements.viewportKicker.textContent = step.kicker;
   elements.viewportTitle.textContent = step.title;
-  elements.viewportDescription.textContent = step.description;
+  elements.viewportDescription.textContent = getCompactViewportText(step.description);
+}
+
+function getCompactViewportText(text) {
+  const cleanText = String(text ?? "").replace(/\s+/g, " ").trim();
+  if (cleanText.length <= 112) {
+    return cleanText;
+  }
+
+  const firstSentence = cleanText.split(/(?<=\.)\s+/)[0];
+  if (firstSentence && firstSentence.length <= 112) {
+    return firstSentence;
+  }
+
+  return `${cleanText.slice(0, 109).trim()}...`;
 }
 
 function isAvenueSegment(step) {
@@ -1291,11 +1305,17 @@ function fitMiniMapToRoute(force = false) {
   const bounds = new google.maps.LatLngBounds();
   mapRoutePoints.forEach((point) => bounds.extend(point));
   mapState.map.fitBounds(bounds, {
-    top: 18,
-    right: 46,
-    bottom: 24,
-    left: 18,
+    top: 28,
+    right: 58,
+    bottom: 32,
+    left: 28,
   });
+  window.setTimeout(() => {
+    const currentZoom = mapState.map?.getZoom();
+    if (typeof currentZoom === "number" && isMobilePracticeLayout()) {
+      mapState.map.setZoom(Math.max(13, currentZoom - 1));
+    }
+  }, 90);
   mapState.fittedRoute = true;
 }
 

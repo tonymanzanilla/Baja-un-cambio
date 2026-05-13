@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapas de recorridos del examen en CABA | Bajá 2 Cambios</title>
+    <meta
+      name="description"
+      content="Mapa general de CABA con los recorridos del examen practico de manejo. Elegi un circuito y el mapa se reencuadra automaticamente."
+    />
+    <link rel="canonical" href="https://www.baja2cambios.com/mapas-recorridos.html" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260513i" />
+  </head>
+  <body class="route-atlas-page">
+    <main class="route-atlas-shell">
+      <header class="route-atlas-hero">
+        <a class="route-atlas-back" href="./index.html?view=practice">Volver al simulador</a>
+        <p class="section-label">Mapas de recorridos</p>
+        <h1>Todos los circuitos del examen en CABA</h1>
+        <p>
+          Mirá todos los recorridos en un mapa general. Tocá un circuito para acercarte
+          directamente a esa zona y comparar calles, giros y puntos de salida.
+        </p>
+      </header>
+
+      <section class="route-atlas-layout" aria-label="Mapa interactivo de recorridos">
+        <aside class="route-atlas-sidebar">
+          <div class="route-atlas-sidebar-title">
+            <span>Recorridos</span>
+            <strong id="routeAtlasCount">Cargando...</strong>
+          </div>
+          <div class="route-atlas-list" id="routeAtlasList"></div>
+        </aside>
+        <div class="route-atlas-map-card">
+          <div id="routeAtlasMap" class="route-atlas-map" role="img" aria-label="Mapa de CABA con recorridos del examen"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app-config.js?v=20260428f"></script>
+    <script src="./circuits/aca-libertador.js?v=20260428f"></script>
+    <script src="./circuits/recoleta-comuna2.js?v=20260428f"></script>
+    <script src="./circuits/balvanera-comuna3.js?v=20260428f"></script>
+    <script src="./circuits/barracas-comuna4.js?v=20260428f"></script>
+    <script src="./circuits/boedo-comuna5.js?v=20260428f"></script>
+    <script src="./circuits/caballito-comuna6.js?v=20260428f"></script>
+    <script src="./circuits/parque-chacabuco-comuna7.js?v=20260428f"></script>
+    <script src="./circuits/parque-avellaneda-comuna9.js?v=20260428f"></script>
+    <script src="./circuits/floresta-comuna10.js?v=20260428f"></script>
+    <script src="./circuits/villa-devoto-comuna11.js?v=20260428f"></script>
+    <script src="./circuits/urquiza-comuna12.js?v=20260428f"></script>
+    <script src="./circuits/nunez-comuna13.js?v=20260428f"></script>
+    <script src="./circuits/palermo-comuna14.js?v=20260428f"></script>
+    <script src="./circuits/chacarita-comuna15.js?v=20260428f"></script>
+    <script src="./mapas-recorridos.js?v=20260513i"></script>
+  </body>
+</html>
