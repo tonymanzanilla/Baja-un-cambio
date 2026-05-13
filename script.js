@@ -1311,18 +1311,21 @@ function fitMiniMapToRoute(force = false) {
 
   const bounds = new google.maps.LatLngBounds();
   mapRoutePoints.forEach((point) => bounds.extend(point));
+  const isMobile = isMobilePracticeLayout();
+  const isFullscreenMobileMap =
+    isMobile && elements.practiceDashboard?.classList.contains("mobile-view-map");
+  const padding = isMobile
+    ? isFullscreenMobileMap
+      ? { top: 60, right: 42, bottom: 42, left: 42 }
+      : { top: 8, right: 10, bottom: 8, left: 10 }
+    : { top: 28, right: 58, bottom: 32, left: 28 };
+
   mapState.map.fitBounds(bounds, {
-    top: 28,
-    right: 58,
-    bottom: 32,
-    left: 28,
+    top: padding.top,
+    right: padding.right,
+    bottom: padding.bottom,
+    left: padding.left,
   });
-  window.setTimeout(() => {
-    const currentZoom = mapState.map?.getZoom();
-    if (typeof currentZoom === "number" && isMobilePracticeLayout()) {
-      mapState.map.setZoom(Math.max(13, currentZoom - 1));
-    }
-  }, 90);
   mapState.fittedRoute = true;
 }
 
