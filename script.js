@@ -420,6 +420,9 @@ function handleViewportPointerDown(event) {
   if (!isMobileTapControlSurface() || event.pointerType === "mouse") {
     return;
   }
+  if (event.target?.closest?.(".gps-map-slot")) {
+    return;
+  }
 
   mobileTapControls.pointerStart = {
     x: event.clientX,
@@ -430,6 +433,10 @@ function handleViewportPointerDown(event) {
 
 function handleViewportPointerUp(event) {
   if (!isMobileTapControlSurface() || event.pointerType === "mouse" || !mobileTapControls.pointerStart) {
+    return;
+  }
+  if (event.target?.closest?.(".gps-map-slot")) {
+    mobileTapControls.pointerStart = null;
     return;
   }
 
