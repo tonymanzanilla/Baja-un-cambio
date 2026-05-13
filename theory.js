@@ -126,6 +126,8 @@
     const isPractice = mode === "practice";
     document.body.classList.add("app-open");
     document.body.classList.remove("app-closed");
+    document.body.classList.toggle("app-practice", isPractice);
+    document.body.classList.toggle("app-theory", !isPractice);
     updateViewParam(mode);
     window.dispatchEvent(new CustomEvent("b2c:app-mode-change", { detail: { mode } }));
 
@@ -451,6 +453,7 @@
       event.preventDefault();
       document.body.classList.remove("app-open");
       document.body.classList.add("app-closed");
+      document.body.classList.remove("app-practice", "app-theory");
       updateViewParam(null);
       document.querySelector("#mainMenu")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -472,5 +475,6 @@
   } else {
     document.body.classList.remove("app-open");
     document.body.classList.add("app-closed");
+    document.body.classList.remove("app-practice", "app-theory");
   }
 })();

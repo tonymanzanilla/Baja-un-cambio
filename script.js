@@ -398,6 +398,60 @@ function toggleSunglasses() {
   elements.viewport?.classList.toggle("sunglasses-on", state.sunglassesOn);
 }
 
+const mobileTapControls = {
+  lastTapAt: 0,
+  pendingSingleTap: null,
+  pointerStart: null,
+};
+
+function isMobileTapControlSurface() {
+  return window.matchMedia("(pointer: coarse) and (max-height: 620px) and (orientation: landscape)").matches;
+}
+
+function handleViewportPointerDown(event) {
+  if (!isMobileTapControlSurface() || event.pointerType === "mouse") {
+    return;
+  }
+
+  mobileTapControls.pointerStart = {
+    x: event.clientX,
+    y: event.clientY,
+    time: window.performance.now(),
+  };
+}
+
+function handleViewportPointerUp(event) {
+  if (!isMobileTapControlSurface() || event.pointerType === "mouse" || !mobileTapControls.pointerStart) {
+    return;
+  }
+
+  const start = mobileTapControls.pointerStart;
+  mobileTapControls.pointerStart = null;
+  const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y);
+  const elapsed = window.performance.now() - start.time;
+  if (moved > 18 || elapsed > 520) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const now = window.performance.now();
+  if (now - mobileTapControls.lastTapAt < 290) {
+    window.clearTimeout(mobileTapControls.pendingSingleTap);
+    mobileTapControls.pendingSingleTap = null;
+    mobileTapControls.lastTapAt = 0;
+    moveCheckpoint(-1);
+    return;
+  }
+
+  mobileTapControls.lastTapAt = now;
+  mobileTapControls.pendingSingleTap = window.setTimeout(() => {
+    mobileTapControls.pendingSingleTap = null;
+    moveCheckpoint(1);
+  }, 220);
+}
+
 function applyTurnSignalPenalty(step) {
   const requiredSignal = getRequiredTurnSignal(step);
   if (!requiredSignal) {
@@ -1920,6 +1974,8 @@ function handleCheckpointKeydown(event) {
 }
 
 document.addEventListener("keydown", handleCheckpointKeydown, true);
+elements.viewport?.addEventListener("pointerdown", handleViewportPointerDown, true);
+elements.viewport?.addEventListener("pointerup", handleViewportPointerUp, true);
 
 window.addEventListener("keyup", (event) => {
   if (isEditableTarget(event.target)) {

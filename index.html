@@ -31,7 +31,7 @@
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260513d" />
+    <link rel="stylesheet" href="./styles.css?v=20260513f" />
   </head>
   <body class="app-closed">
     <div class="noise"></div>
@@ -47,6 +47,14 @@
       </section>
 
       <div class="app-shell" id="appShell">
+      <div class="mobile-orientation-lock" aria-hidden="true">
+        <div class="mobile-orientation-card">
+          <span>Girá el teléfono</span>
+          <strong>El simulador se juega en horizontal</strong>
+          <p>En mobile: 1 tap avanza, 2 taps retrocede. El mapa queda en una vista aparte.</p>
+        </div>
+      </div>
+
       <header class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Practicá el circuito real antes de rendir</p>
@@ -620,6 +628,10 @@
             Mirá 360° con el mouse o el dedo. Si te trabás, el <strong>Instructor IA</strong>
             está abajo a la derecha para preguntarle.
           </p>
+          <p class="onboarding-mobile-copy">
+            En teléfono, giralo en horizontal: <strong>1 tap</strong> avanza y
+            <strong>2 taps</strong> retrocede. El mapa está en su propia pestaña.
+          </p>
           <div class="onboarding-command-grid" aria-label="Comandos del simulador">
             <span><kbd>↑</kbd> Avanzar</span>
             <span><kbd>↓</kbd> Retroceder</span>
@@ -650,8 +662,8 @@
     <script src="./circuits/palermo-comuna14.js?v=20260428f"></script>
     <script src="./circuits/chacarita-comuna15.js?v=20260428f"></script>
     <script src="./assistant-data.js?v=20260429a"></script>
-    <script src="./script.js?v=20260513d"></script>
+    <script src="./script.js?v=20260513f"></script>
     <script src="./theory-data.js?v=20260428f"></script>
-    <script src="./theory.js?v=20260513d"></script>
+    <script src="./theory.js?v=20260513f"></script>
   </body>
 </html>

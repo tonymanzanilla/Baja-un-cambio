@@ -482,6 +482,14 @@ button:hover {
   display: none;
 }
 
+.mobile-orientation-lock {
+  display: none;
+}
+
+.onboarding-mobile-copy {
+  display: none;
+}
+
 .theory-dashboard {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -3246,5 +3254,318 @@ button:hover {
   .seo-copy p {
     font-size: 0.98rem;
     line-height: 1.58;
+  }
+}
+
+@media (max-width: 920px) and (orientation: portrait) {
+  body.app-open.app-practice {
+    overflow: hidden;
+    background: #07111a;
+  }
+
+  body.app-open.app-practice .mobile-orientation-lock {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: grid;
+    place-items: center;
+    padding: 22px;
+    color: #f8fbff;
+    background:
+      radial-gradient(circle at 50% 18%, rgba(68, 179, 200, 0.32), transparent 28%),
+      linear-gradient(180deg, #07111a 0%, #04070d 100%);
+  }
+
+  body.app-open.app-practice .mobile-orientation-card {
+    width: min(84vw, 390px);
+    padding: 24px;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(7, 15, 24, 0.86);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    text-align: center;
+  }
+
+  body.app-open.app-practice .mobile-orientation-card span {
+    display: inline-flex;
+    margin-bottom: 10px;
+    color: #ffcf68;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  body.app-open.app-practice .mobile-orientation-card strong {
+    display: block;
+    font-family: "Space Grotesk", sans-serif;
+    font-size: clamp(1.65rem, 8vw, 2.25rem);
+    line-height: 0.92;
+    letter-spacing: -0.05em;
+  }
+
+  body.app-open.app-practice .mobile-orientation-card p {
+    margin: 14px auto 0;
+    color: rgba(248, 251, 255, 0.74);
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+}
+
+@media (max-width: 1100px) and (max-height: 620px) and (orientation: landscape) {
+  body.app-open.app-practice {
+    overflow: hidden;
+    background: #05090d;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  body.app-open.app-practice .page-shell,
+  body.app-open.app-practice .app-shell,
+  body.app-open.app-practice .dashboard {
+    width: 100vw;
+    height: 100svh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  body.app-open.app-practice .dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: "experience";
+    padding: 0;
+    background: #05090d;
+  }
+
+  body.app-open.app-practice .section-splash,
+  body.app-open.app-practice .viewer-status-row,
+  body.app-open.app-practice .embedded-contextual-panel,
+  body.app-open.app-practice .viewer-footer,
+  body.app-open.app-practice .assistant-toggle,
+  body.app-open.app-practice .assistant-panel,
+  body.app-open.app-practice .turn-signal-dashboard,
+  body.app-open.app-practice .route-cue,
+  body.app-open.app-practice .micro-tip {
+    display: none !important;
+  }
+
+  body.app-open.app-practice .circuit-selector-panel {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 7px);
+    left: calc(env(safe-area-inset-left, 0px) + 8px);
+    z-index: 80;
+    width: min(43vw, 360px);
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body.app-open.app-practice .circuit-selector-panel .drawer-card {
+    border-radius: 18px;
+    background: rgba(250, 244, 230, 0.9);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+  }
+
+  body.app-open.app-practice .circuit-selector-panel .circuit-picker summary {
+    min-height: 38px;
+    padding: 6px 12px;
+  }
+
+  body.app-open.app-practice .circuit-selector-panel .circuit-picker summary span {
+    font-size: 0.46rem;
+    letter-spacing: 0.16em;
+  }
+
+  body.app-open.app-practice .circuit-selector-panel .circuit-picker summary strong {
+    font-size: 0.72rem;
+    line-height: 1.05;
+  }
+
+  body.app-open.app-practice .mobile-practice-switch {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 7px);
+    right: calc(env(safe-area-inset-right, 0px) + 8px);
+    z-index: 82;
+    display: inline-grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    width: auto;
+    margin: 0;
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(7, 14, 20, 0.72);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(10px);
+  }
+
+  body.app-open.app-practice .mobile-practice-tab {
+    min-width: 66px;
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    color: rgba(248, 251, 255, 0.76);
+    font-size: 0.68rem;
+  }
+
+  body.app-open.app-practice .mobile-practice-tab.active {
+    color: #07111a;
+    background: #ffcf68;
+    box-shadow: none;
+  }
+
+  body.app-open.app-practice .experience-panel {
+    grid-area: experience;
+    display: grid !important;
+    height: 100svh;
+    min-height: 0;
+  }
+
+  body.app-open.app-practice .viewport {
+    width: 100vw;
+    height: 100svh;
+    min-height: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+    box-shadow: none;
+    touch-action: pan-x pan-y;
+  }
+
+  body.app-open.app-practice .street-view-canvas,
+  body.app-open.app-practice .road-stage {
+    inset: 0;
+    border-radius: 0;
+  }
+
+  body.app-open.app-practice .cockpit-frame {
+    opacity: 0.9;
+    clip-path: inset(36% 0 0 0);
+    transform: translateY(7%) scale(1.05);
+    transform-origin: center bottom;
+  }
+
+  body.app-open.app-practice .sunglasses-filter,
+  body.app-open.app-practice .gps-map-slot {
+    display: none;
+  }
+
+  body.app-open.app-practice .viewport.sunglasses-on .sunglasses-filter {
+    display: block;
+    opacity: 0.5;
+  }
+
+  body.app-open.app-practice .viewport-overlay {
+    top: calc(env(safe-area-inset-top, 0px) + 52px);
+    left: calc(env(safe-area-inset-left, 0px) + 9px);
+    width: min(34vw, 230px);
+    max-width: min(34vw, 230px);
+    max-height: 52px;
+    padding: 6px 8px;
+    border-radius: 12px;
+    background: rgba(250, 248, 238, 0.78);
+    backdrop-filter: blur(8px);
+  }
+
+  body.app-open.app-practice .viewport-overlay .viewport-kicker {
+    margin-bottom: 3px;
+    font-size: 0.42rem;
+    letter-spacing: 0.13em;
+  }
+
+  body.app-open.app-practice .viewport-overlay h3 {
+    font-size: 0.66rem;
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+  }
+
+  body.app-open.app-practice .viewport-overlay .viewport-mini {
+    display: none;
+  }
+
+  body.app-open.app-practice .viewport-bottom-bar {
+    top: calc(env(safe-area-inset-top, 0px) + 52px);
+    right: calc(env(safe-area-inset-right, 0px) + 9px);
+    left: auto;
+    bottom: auto;
+  }
+
+  body.app-open.app-practice .car-hud {
+    min-width: 86px;
+    padding: 6px 8px;
+    border-radius: 12px;
+    background: rgba(13, 22, 31, 0.76);
+    backdrop-filter: blur(8px);
+  }
+
+  body.app-open.app-practice .car-hud span {
+    font-size: 0.5rem;
+  }
+
+  body.app-open.app-practice .car-hud strong {
+    font-size: 0.78rem;
+  }
+
+  body.app-open.app-practice .dashboard.mobile-view-map .viewport {
+    background: #eaf4ed;
+  }
+
+  body.app-open.app-practice .dashboard.mobile-view-map .street-view-canvas,
+  body.app-open.app-practice .dashboard.mobile-view-map .road-stage,
+  body.app-open.app-practice .dashboard.mobile-view-map .cockpit-frame,
+  body.app-open.app-practice .dashboard.mobile-view-map .sunglasses-filter,
+  body.app-open.app-practice .dashboard.mobile-view-map .viewport-overlay,
+  body.app-open.app-practice .dashboard.mobile-view-map .viewport-bottom-bar {
+    display: none !important;
+  }
+
+  body.app-open.app-practice .dashboard.mobile-view-map .gps-map-slot {
+    display: block;
+    z-index: 20;
+    inset: calc(env(safe-area-inset-top, 0px) + 48px) calc(env(safe-area-inset-right, 0px) + 10px) calc(env(safe-area-inset-bottom, 0px) + 10px) calc(env(safe-area-inset-left, 0px) + 10px) !important;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 18px;
+    background: #f7fbf8;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+  }
+
+  body.app-open.app-practice .dashboard.mobile-view-map .gps-map-slot::before,
+  body.app-open.app-practice .dashboard.mobile-view-map .gps-map-slot::after {
+    display: none;
+  }
+
+  body.app-open.app-practice .dashboard.mobile-view-map .gps-map-slot #routeMapCanvas {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0;
+    border-radius: 18px;
+  }
+
+  body.app-open.app-practice .onboarding-card {
+    width: min(82vw, 520px);
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  body.app-open.app-practice .onboarding-card h2 {
+    font-size: 1.55rem;
+  }
+
+  body.app-open.app-practice .onboarding-card p:not(.section-label) {
+    font-size: 0.86rem;
+  }
+
+  body.app-open.app-practice .onboarding-mobile-copy {
+    display: block;
+  }
+
+  body.app-open.app-practice .onboarding-command-grid {
+    display: none;
   }
 }
