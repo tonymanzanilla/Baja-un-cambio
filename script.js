@@ -259,6 +259,7 @@ const elements = {
   mobileExperienceViewButton: document.querySelector("#mobileExperienceViewButton"),
   mobileMapViewButton: document.querySelector("#mobileMapViewButton"),
   assistantToggleButton: document.querySelector("#assistantToggleButton"),
+  mobileAssistantBubble: document.querySelector("#mobileAssistantBubble"),
   assistantPanel: document.querySelector("#assistantPanel"),
   assistantCloseButton: document.querySelector("#assistantCloseButton"),
   assistantCircuitPill: document.querySelector("#assistantCircuitPill"),
@@ -2034,6 +2035,9 @@ elements.turnRightButton.addEventListener("click", () => moveCheckpoint(1));
 elements.driveForwardButton?.addEventListener("click", () => moveCheckpoint(1));
 elements.assistantToggleButton?.addEventListener("click", () => {
   setAssistantOpen(!state.assistantOpen);
+});
+elements.mobileAssistantBubble?.addEventListener("click", () => {
+  setAssistantOpen(true);
 });
 elements.assistantCloseButton?.addEventListener("click", () => {
   setAssistantOpen(false);
