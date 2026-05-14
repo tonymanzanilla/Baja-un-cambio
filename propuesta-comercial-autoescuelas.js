@@ -66,7 +66,9 @@
     const maxScroll = Math.max(0, document.documentElement.scrollHeight - viewportH);
 
     if (align === "start") {
-      return clamp(top - (isSmallViewport() ? 16 : viewportH * 0.14), 0, maxScroll);
+      const safeMargin = isSmallViewport() ? 16 : Math.max(22, viewportH * 0.045);
+      const centeredOffset = Math.max(safeMargin, (viewportH - height) / 2);
+      return clamp(top - centeredOffset, 0, maxScroll);
     }
 
     return clamp(top - (viewportH - height) / 2, 0, maxScroll);

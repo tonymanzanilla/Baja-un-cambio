@@ -1,6 +1,6 @@
 html {
   scroll-behavior: auto;
-  scroll-padding-block: clamp(42px, 12vh, 108px);
+  scroll-padding-block: clamp(18px, 5vh, 54px);
 }
 
 body.proposal-parallax-page {
@@ -222,15 +222,15 @@ body.proposal-parallax-page::before {
 .proposal-card-flow {
   width: min(1168px, calc(100% - 40px));
   margin: 0 auto;
-  padding: clamp(86px, 16vh, 174px) 0 clamp(120px, 20vh, 220px);
+  padding: clamp(64px, 11vh, 128px) 0 clamp(92px, 16vh, 170px);
   display: grid;
-  gap: clamp(96px, 17vh, 176px);
+  gap: clamp(74px, 13vh, 136px);
 }
 
 .proposal-card-flow > .proposal-block {
   width: 100%;
   margin-inline: auto;
-  scroll-margin-block: clamp(42px, 12vh, 108px);
+  scroll-margin-block: clamp(18px, 5vh, 54px);
 }
 
 body.proposal-motion-ready .proposal-card-flow > .proposal-block {
@@ -254,23 +254,24 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 }
 
 .proposal-parallax-page .proposal-hero-card {
-  min-height: min(70vh, 760px);
+  min-height: min(62vh, 650px);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(34px, 5vw, 56px);
+  padding: clamp(28px, 3.8vw, 44px);
 }
 
 .proposal-parallax-page .proposal-hero-card h1 {
   max-width: 14.2ch;
-  font-size: clamp(3rem, 6.8vw, 6.25rem);
-  line-height: 0.9;
+  font-size: clamp(2.8rem, 5.4vw, 5.35rem);
+  line-height: 0.91;
 }
 
 .proposal-parallax-page .seo-lead {
   max-width: 48rem;
   color: #143b56;
-  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  font-size: clamp(0.98rem, 1.14vw, 1.1rem);
+  line-height: 1.55;
 }
 
 .proposal-parallax-page .seo-kicker {
@@ -299,7 +300,7 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 .proposal-parallax-page .proposal-solution-card,
 .proposal-parallax-page .proposal-problem,
 .proposal-parallax-page .proposal-footer {
-  padding: clamp(28px, 4.4vw, 48px);
+  padding: clamp(24px, 3.4vw, 40px);
 }
 
 .proposal-parallax-page .proposal-proof-card h2,
@@ -310,8 +311,8 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 .proposal-parallax-page .proposal-problem h2,
 .proposal-parallax-page .proposal-solution-card h2,
 .proposal-parallax-page .proposal-footer h2 {
-  font-size: clamp(2.3rem, 5vw, 4.9rem);
-  line-height: 0.92;
+  font-size: clamp(2.05rem, 4.15vw, 4.25rem);
+  line-height: 0.94;
 }
 
 .proposal-parallax-page .proposal-large-copy,
@@ -324,6 +325,11 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 .proposal-parallax-page .proposal-benefit-card p,
 .proposal-parallax-page .proposal-includes-list li {
   color: #153f59;
+}
+
+.proposal-parallax-page .proposal-large-copy {
+  font-size: clamp(0.98rem, 1.18vw, 1.08rem);
+  line-height: 1.58;
 }
 
 .proposal-parallax-page .proposal-stat-grid {
@@ -350,9 +356,94 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 }
 
 .proposal-demo-break {
-  min-height: clamp(260px, 38vh, 420px);
+  min-height: clamp(220px, 32vh, 350px);
   display: grid;
   place-items: center;
+}
+
+.proposal-contact-break {
+  min-height: clamp(260px, 42vh, 430px);
+  display: grid;
+  place-items: center;
+}
+
+.proposal-contact-card {
+  width: min(760px, 100%);
+  padding: clamp(24px, 4vw, 42px);
+  border: 1px solid rgba(255, 255, 255, 0.54);
+  border-radius: clamp(28px, 3.2vw, 38px);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(198, 244, 219, 0.58), transparent 32%),
+    linear-gradient(135deg, rgba(255, 253, 248, 0.94), rgba(236, 250, 255, 0.88));
+  box-shadow:
+    0 34px 90px rgba(0, 22, 86, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(22px) saturate(1.12);
+  -webkit-backdrop-filter: blur(22px) saturate(1.12);
+}
+
+.proposal-contact-card h2 {
+  max-width: 12ch;
+  margin: 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.1rem, 4.6vw, 4.45rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+}
+
+.proposal-contact-card p:not(.seo-kicker) {
+  max-width: 42rem;
+  margin: 16px 0 0;
+  color: #153f59;
+  font-size: clamp(1rem, 1.25vw, 1.12rem);
+  line-height: 1.55;
+}
+
+.proposal-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+.proposal-whatsapp-button,
+.proposal-email-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  border-radius: 999px;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.proposal-whatsapp-button {
+  padding: 0 24px;
+  color: #f7fff9;
+  background: linear-gradient(180deg, #24c46b 0%, #16824d 100%);
+  box-shadow:
+    0 18px 36px rgba(21, 121, 70, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.proposal-email-link {
+  padding: 0 20px;
+  color: #163c54;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(9, 44, 74, 0.1);
+}
+
+.proposal-whatsapp-button:hover,
+.proposal-email-link:hover {
+  transform: translateY(-2px);
 }
 
 .proposal-big-demo {
@@ -392,6 +483,8 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 }
 
 .proposal-big-demo:focus-visible,
+.proposal-whatsapp-button:focus-visible,
+.proposal-email-link:focus-visible,
 .proposal-parallax-page .seo-button:focus-visible,
 .proposal-parallax-page .seo-button-secondary:focus-visible {
   outline: 3px solid rgba(255, 255, 255, 0.86);
@@ -507,6 +600,10 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
     scroll-padding-block: 16px;
   }
 
+  .proposal-scene-focus {
+    filter: blur(calc(var(--proposal-scene-blur) * 0.62)) saturate(1.06) brightness(1.01);
+  }
+
   .proposal-sky {
     inset: -3vh -42vw;
     background-position: center top;
@@ -525,7 +622,7 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 
   .proposal-device--desktop {
     right: -20vw;
-    bottom: 22vh;
+    bottom: 20vh;
     width: 76vw;
   }
 
@@ -556,7 +653,8 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
 
   .proposal-card-flow {
     width: min(100% - 24px, 520px);
-    padding-top: 96px;
+    padding-top: 54px;
+    gap: 64px;
   }
 
   .proposal-card-flow > .proposal-block:not(.proposal-demo-break) {
@@ -576,12 +674,13 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
   .proposal-parallax-page .proposal-solution-card,
   .proposal-parallax-page .proposal-problem,
   .proposal-parallax-page .proposal-footer {
-    padding: 24px 20px;
+    padding: 18px 16px;
   }
 
   .proposal-parallax-page .proposal-hero-card h1 {
     max-width: none;
-    font-size: clamp(2.25rem, 11vw, 3.3rem);
+    font-size: clamp(1.95rem, 9.3vw, 2.72rem);
+    line-height: 0.94;
   }
 
   .proposal-parallax-page .proposal-proof-card h2,
@@ -592,13 +691,144 @@ body.proposal-motion-ready .proposal-card-flow > .proposal-block {
   .proposal-parallax-page .proposal-problem h2,
   .proposal-parallax-page .proposal-solution-card h2,
   .proposal-parallax-page .proposal-footer h2 {
-    font-size: clamp(2rem, 9.2vw, 3rem);
+    font-size: clamp(1.65rem, 7.7vw, 2.35rem);
+    line-height: 0.98;
+  }
+
+  .proposal-parallax-page .seo-kicker {
+    margin-bottom: 10px;
+    font-size: 0.66rem;
+    letter-spacing: 0.15em;
+  }
+
+  .proposal-parallax-page .seo-lead,
+  .proposal-parallax-page .proposal-large-copy,
+  .proposal-parallax-page .proposal-price-note,
+  .proposal-parallax-page .proposal-band-note,
+  .proposal-parallax-page .proposal-list-item span,
+  .proposal-parallax-page .proposal-feature-stack span,
+  .proposal-parallax-page .proposal-ai-grid span,
+  .proposal-parallax-page .proposal-step-card p,
+  .proposal-parallax-page .proposal-benefit-card p,
+  .proposal-parallax-page .proposal-includes-list li {
+    font-size: 0.9rem;
+    line-height: 1.38;
+  }
+
+  .proposal-highlight-strip {
+    gap: 7px;
+    margin-top: 14px;
+  }
+
+  .proposal-highlight-strip span {
+    padding: 7px 10px;
+    font-size: 0.74rem;
+  }
+
+  .proposal-parallax-page .seo-cta-row {
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .proposal-parallax-page .seo-button,
+  .proposal-parallax-page .seo-button-secondary {
+    min-height: 43px;
+    padding: 0 15px;
+    font-size: 0.86rem;
+  }
+
+  .proposal-stat-grid,
+  .proposal-feature-stack,
+  .proposal-ai-grid,
+  .proposal-steps-grid,
+  .proposal-benefits-grid,
+  .proposal-list {
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .proposal-stat-grid article,
+  .proposal-feature-stack article,
+  .proposal-ai-grid article,
+  .proposal-step-card,
+  .proposal-benefit-card,
+  .proposal-list-item,
+  .proposal-includes-list li {
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+
+  .proposal-stat-grid strong {
+    margin-bottom: 4px;
+    font-size: clamp(1.95rem, 8vw, 2.6rem);
+  }
+
+  .proposal-list-item strong,
+  .proposal-feature-stack strong,
+  .proposal-benefit-card strong,
+  .proposal-step-card strong,
+  .proposal-ai-grid strong {
+    margin-bottom: 4px;
+    font-size: 0.9rem;
+  }
+
+  .proposal-step-index {
+    width: 26px;
+    height: 26px;
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+  }
+
+  .proposal-price-big {
+    margin-top: 10px;
+    font-size: clamp(2.35rem, 13vw, 3.4rem);
+  }
+
+  .proposal-includes-list {
+    gap: 8px;
+  }
+
+  .proposal-demo-break,
+  .proposal-contact-break {
+    min-height: 240px;
+  }
+
+  .proposal-contact-card {
+    padding: 20px 18px;
+    border-radius: 24px;
+  }
+
+  .proposal-contact-card h2 {
+    max-width: 13ch;
+    font-size: clamp(1.75rem, 8.4vw, 2.6rem);
+    line-height: 0.96;
+  }
+
+  .proposal-contact-card p:not(.seo-kicker) {
+    margin-top: 10px;
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .proposal-contact-actions {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .proposal-whatsapp-button,
+  .proposal-email-link {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+    font-size: 0.86rem;
   }
 
   .proposal-big-demo {
     min-width: min(100%, 320px);
-    min-height: 86px;
-    font-size: clamp(2rem, 11vw, 3.1rem);
+    min-height: 72px;
+    padding: 0 28px;
+    font-size: clamp(1.8rem, 9.5vw, 2.65rem);
   }
 }
 
