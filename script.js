@@ -260,6 +260,8 @@ const elements = {
   mobileMapViewButton: document.querySelector("#mobileMapViewButton"),
   assistantToggleButton: document.querySelector("#assistantToggleButton"),
   mobileAssistantBubble: document.querySelector("#mobileAssistantBubble"),
+  mobileAssistantRotate: document.querySelector("#mobileAssistantRotate"),
+  mobileAssistantRotateClose: document.querySelector("#mobileAssistantRotateClose"),
   assistantPanel: document.querySelector("#assistantPanel"),
   assistantCloseButton: document.querySelector("#assistantCloseButton"),
   assistantCircuitPill: document.querySelector("#assistantCircuitPill"),
@@ -279,6 +281,7 @@ const state = {
   reachedCurrentCheckpoint: false,
   lastDistanceToCheckpoint: null,
   assistantOpen: false,
+  mobileAssistantMode: false,
   mobilePracticeView: "experience",
   turnSignal: null,
   sunglassesOn: false,
@@ -1076,14 +1079,29 @@ function setMobilePracticeView(nextView) {
   renderMap();
 }
 
+function syncAssistantViewportSize() {
+  if (!window.visualViewport) {
+    return;
+  }
+
+  document.documentElement.style.setProperty("--assistant-visual-height", `${window.visualViewport.height}px`);
+  document.documentElement.style.setProperty("--assistant-visual-top", `${window.visualViewport.offsetTop}px`);
+}
+
 function syncAssistantPanel() {
   if (!elements.assistantPanel || !elements.assistantToggleButton) {
     return;
   }
 
+  syncAssistantViewportSize();
   elements.assistantPanel.classList.toggle("is-open", state.assistantOpen);
+  document.body.classList.toggle("mobile-assistant-mode", state.mobileAssistantMode && state.assistantOpen);
   elements.assistantPanel.setAttribute("aria-hidden", state.assistantOpen ? "false" : "true");
   elements.assistantToggleButton.setAttribute("aria-expanded", state.assistantOpen ? "true" : "false");
+  elements.mobileAssistantRotate?.setAttribute(
+    "aria-hidden",
+    state.mobileAssistantMode && state.assistantOpen ? "false" : "true"
+  );
 }
 
 function syncGpsMapSlot() {
@@ -1117,15 +1135,20 @@ function syncGpsMapSlot() {
   }
 }
 
-function setAssistantOpen(nextValue) {
+function setAssistantOpen(nextValue, options = {}) {
   state.assistantOpen = nextValue;
+  if (!nextValue) {
+    state.mobileAssistantMode = false;
+  }
   syncAssistantPanel();
   if (nextValue) {
     renderAssistantMeta();
     renderAssistantMessages();
-    window.setTimeout(() => {
-      elements.assistantInput?.focus();
-    }, 40);
+    if (options.focus !== false) {
+      window.setTimeout(() => {
+        elements.assistantInput?.focus();
+      }, 40);
+    }
   }
 }
 
@@ -2037,9 +2060,13 @@ elements.assistantToggleButton?.addEventListener("click", () => {
   setAssistantOpen(!state.assistantOpen);
 });
 elements.mobileAssistantBubble?.addEventListener("click", () => {
-  setAssistantOpen(true);
+  state.mobileAssistantMode = true;
+  setAssistantOpen(true, { focus: false });
 });
 elements.assistantCloseButton?.addEventListener("click", () => {
+  setAssistantOpen(false);
+});
+elements.mobileAssistantRotateClose?.addEventListener("click", () => {
   setAssistantOpen(false);
 });
 elements.mobileExperienceViewButton?.addEventListener("click", () => {
@@ -2051,9 +2078,12 @@ elements.mobileMapViewButton?.addEventListener("click", () => {
 elements.assistantForm?.addEventListener("submit", handleAssistantSubmit);
 elements.onboardingOkButton?.addEventListener("click", dismissOnboarding);
 window.addEventListener("resize", () => {
+  syncAssistantViewportSize();
   syncMobilePracticeView();
   syncGpsMapSlot();
 });
+window.visualViewport?.addEventListener("resize", syncAssistantViewportSize);
+window.visualViewport?.addEventListener("scroll", syncAssistantViewportSize);
 window.addEventListener("b2c:app-mode-change", (event) => {
   syncGpsMapSlot();
   if (event.detail?.mode === "practice") {

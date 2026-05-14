@@ -25,7 +25,7 @@
       "Podes usar frases naturales de Argentina si salen organicas, pero sin exagerar ni llenar todo de muletillas.",
     ].join(" "),
     welcomeMessage:
-      "Estoy para ayudarte a entender el recorrido, usar la app y llegar mas suelto al practico. Preguntame desde una prioridad medio confusa hasta como usar Street View, que hacer apenas te sentas en el auto o esos detalles finos del examen que a veces te comen la cabeza.",
+      "Preguntame lo que quieras sobre vialidad, el recorrido o el examen.",
     knowledgeBase: [
       {
         id: "app-purpose",
