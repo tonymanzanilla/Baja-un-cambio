@@ -202,6 +202,7 @@ const mapContextRules = activeCircuit.mapContextRules;
 
 const config = window.APP_CONFIG ?? {};
 const assistantData = window.DRIVING_ASSISTANT_DATA ?? { starterPrompts: [], knowledgeBase: [] };
+const mobileAssistantWelcomeMessage = "Preguntame lo que quieras sobre vialidad, el recorrido o el examen.";
 
 const elements = {
   startStudyMode: document.querySelector("#startStudyMode"),
@@ -1027,8 +1028,12 @@ function renderAssistantMessages() {
   }
 
   elements.assistantMessages.replaceChildren();
-  assistantState.messages.forEach((message) => {
-    elements.assistantMessages.append(createAssistantMessageElement(message));
+  assistantState.messages.forEach((message, index) => {
+    const renderedMessage =
+      state.mobileAssistantMode && index === 0 && message.role === "bot"
+        ? { ...message, text: mobileAssistantWelcomeMessage, sources: [] }
+        : message;
+    elements.assistantMessages.append(createAssistantMessageElement(renderedMessage));
   });
   if (assistantState.pending) {
     const pendingMessage = document.createElement("article");
