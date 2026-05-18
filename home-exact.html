@@ -259,6 +259,10 @@
   @media (max-width: 900px) {
     body {
       min-height: 100dvh;
+      height: auto;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     body {
@@ -266,7 +270,8 @@
     }
 
     #scene {
-      min-height: 100dvh;
+      min-height: max(100dvh, 700px);
+      height: auto;
       overflow: hidden;
     }
 
@@ -343,7 +348,7 @@
 
   @media (max-width: 560px) {
     #scene {
-      min-height: 100dvh;
+      min-height: max(100dvh, 760px);
     }
 
     #title-wrap {

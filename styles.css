@@ -3152,9 +3152,25 @@ body.app-open.app-theory .theory-dashboard {
 }
 
 @media (max-width: 720px) {
+  body.app-closed {
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .page-shell {
     width: 100%;
     padding: 0;
+  }
+
+  body.app-closed .entry-menu {
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  body.app-closed .home-frame {
+    height: 100dvh;
+    overflow: auto;
   }
 
   #scene {
